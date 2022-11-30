@@ -17,10 +17,6 @@ class AuthManager:
         try:
             payload = {
                 "sub": user_data["id"],
-                "login_type": user_data["login_type"].name,
-                "email": user_data["email"],
-                "display_name": user_data["display_name"],
-                "role": user_data["role"].name,
                 "exp": datetime.utcnow() + timedelta(hours=8)
             }
             return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256")

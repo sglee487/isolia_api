@@ -2,4 +2,8 @@ from schemas.base import UserBase
 
 
 class UserSignOut(UserBase):
-    pass
+    token: str
+    login_type: str
+    email: str
+    display_name: str
+    role: str

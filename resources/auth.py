@@ -7,16 +7,16 @@ from schemas.request.user import UserRegisterIn, UserSignIn
 
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
+from schemas.response.user import UserSignOut
+
 router = APIRouter(tags=['Auth'])
 
 
-@router.post('/user/', dependencies=[Depends(oauth2_app)], status_code=HTTP_201_CREATED)
+@router.post('/user/', dependencies=[Depends(oauth2_app)], response_model=UserSignOut, status_code=HTTP_201_CREATED)
 async def register(user_data: UserRegisterIn):
-    token = await UserManager.register(user_data.dict())
-    return {"token": token}
+    return await UserManager.register(user_data.dict())
 
 
 @router.post("/login/", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK)
 async def login(user_data: UserSignIn):
-    token = await UserManager.login(user_data.dict())
-    return {"token": token}
+    return await UserManager.login(user_data.dict())
