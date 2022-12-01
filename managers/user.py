@@ -53,7 +53,7 @@ class UserManager:
             where(user.c.id == current_user["id"]).
             values(display_name=user_data["display_name"]))
 
-        if len(user_data["new_password"]) > 0:
+        if len(user_data["new_password"]) >= 8:
             await database.execute(
                 user.update().
                 where(user.c.id == current_user["id"]).
