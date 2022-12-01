@@ -17,7 +17,7 @@ class AuthManager:
         try:
             payload = {
                 "sub": user_data["id"],
-                "exp": datetime.utcnow() + timedelta(minutes=5)
+                "exp": datetime.utcnow() + timedelta(hours=8)
             }
             return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256")
         except Exception as ex:
