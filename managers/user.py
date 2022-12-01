@@ -42,3 +42,23 @@ class UserManager:
             "display_name": user_do["display_name"],
             "role": user_do["role"].name,
         }
+
+    @staticmethod
+    async def update(user_data, current_user):
+        if not pwd_context.verify(user_data["password"], current_user["password"]):
+            raise HTTPException(403, "Wrong password")
+
+        await database.execute(
+            user.update().
+            where(user.c.id == current_user["id"]).
+            values(display_name=user_data["display_name"]))
+
+        if len(user_data["new_password"]) > 0:
+            await database.execute(
+                user.update().
+                where(user.c.id == current_user["id"]).
+                values(password=pwd_context.hash(user_data["new_password"])))
+
+        return {
+            "display_name": user_data["display_name"]
+        }
