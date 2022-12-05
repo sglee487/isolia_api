@@ -8,6 +8,7 @@ user = sqlalchemy.Table(
     "users",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("sns_sub", sqlalchemy.String(60)),
     sqlalchemy.Column("login_type", sqlalchemy.Enum(LoginType), nullable=False),
     sqlalchemy.Column("email", sqlalchemy.String(120), nullable=False),
     UniqueConstraint("login_type", "email", name="type_email"),
