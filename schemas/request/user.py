@@ -17,4 +17,6 @@ class UserUpdateIn(UserBase):
 
 
 class UserSignIn(UserBase):
-    password: PasswordField
+    login_type: LoginType
+    password: PasswordField | None
+    sns_token: str | None

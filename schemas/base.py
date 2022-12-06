@@ -33,4 +33,4 @@ class PasswordField(str):
 
 
 class UserBase(BaseModel):
-    email: EmailField
+    email: EmailField | None

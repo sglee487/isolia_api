@@ -43,10 +43,23 @@ class CustomHTTPBearer(HTTPBearer):
         res = await super().__call__(request)
 
         try:
-            payload = jwt.decode(res.credentials, config("SECRET_KEY"), algorithms=["HS256"])
-            user_data = await database.fetch_one(user.select().where(user.c.id == payload["sub"]))
-            request.state.user = user_data
-            return user_data
+            # email
+            if res.credentials:
+                payload = jwt.decode(res.credentials, config("SECRET_KEY"), algorithms=["HS256"])
+                user_data = await database.fetch_one(user.select().where(user.c.id == payload["sub"]))
+                request.state.user = user_data
+                return user_data
+
+            # google auth
+            if res.credential and res.credential['iss'] == "https://accounts.google.com":
+                if res.client_id != config("GOOGLE_CLIENT_ID"):
+                    raise HTTPException(
+                        status_code=HTTP_403_FORBIDDEN, detail="Invalid authentication credentials"
+                    )
+                if not res.credential['email_verified']:
+                    raise HTTPException(
+                        status_code=HTTP_403_FORBIDDEN, detail="Email not verified"
+                    )
         except jwt.ExpiredSignatureError:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
         except jwt.InvalidTokenError:
