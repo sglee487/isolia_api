@@ -14,4 +14,4 @@ def generate_random_name() -> str:
         for line in lines:
             noun_list.append(line.strip())
 
-    return f"{random.choice(adj_list)} {random.choice(noun_list)}"
+    return f"{random.choice(adj_list)} {random.choice(noun_list)} {random.randrange(1,100)}"
