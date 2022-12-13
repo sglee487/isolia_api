@@ -11,3 +11,9 @@ class LoginType(enum.Enum):
     naver = "naver"
     google = "google"
     apple = "apple"
+
+
+class BoardType(enum.Enum):
+    notice = "notice"
+    free = "free"
+    suggestion = "suggestion"
