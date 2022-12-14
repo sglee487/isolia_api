@@ -1,4 +1,4 @@
-"""add board
+"""add board.py
 
 Revision ID: d4794532ce03
 Revises: d88a9ef856be
