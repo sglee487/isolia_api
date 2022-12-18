@@ -1,4 +1,4 @@
-from models.user import *
-from models.board import *
-from models.enums import *
-from models.board_content import *
+from models.user import user
+from models.board import board
+from models.enums import RoleType, BoardType, LoginType
+from models.board_content import board_content

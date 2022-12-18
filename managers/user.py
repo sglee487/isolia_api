@@ -17,7 +17,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def get_user_response(user_data, sns_token=None):
-    token = await AuthManager.encode_token(user_data) if not sns_token else sns_token
+    token = AuthManager.encode_token(user_data) if not sns_token else sns_token
     return {
         "token": token,
         "login_type": user_data["login_type"].name,

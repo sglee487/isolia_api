@@ -34,3 +34,8 @@ class PasswordField(str):
 
 class UserBase(BaseModel):
     email: EmailField | None
+
+
+class BoardBase(BaseModel):
+    title: str
+    content: str
