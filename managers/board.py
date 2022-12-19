@@ -17,8 +17,7 @@ class BoardManager:
     @staticmethod
     async def get_board_list(board_type: BoardType):
         board_list = await database.fetch_all(
-            board.select().where(board.c.board_type == board_type).filter(board.c.is_deleted == False).order_by(
-                board.c.created_at.desc())
+            query=f"select boards.id, boards.board_type, boards.title, boards.created_at, users.display_name from boards, users where boards.board_type = '{board_type.value}' and boards.user_id = users.id and boards.is_deleted = false order by boards.created_at desc"
         )
         return board_list
 
@@ -29,9 +28,7 @@ class BoardManager:
             raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="로그인이 필요합니다.")
 
         board_content_id = await database.execute(
-            board_content.insert().values(
-                content=post_data["content"]
-            )
+            board_content.insert().values(content=post_data["content"])
         )
 
         board_id = await database.execute(
@@ -58,7 +55,4 @@ class BoardManager:
             board_content.select().where(board_content.c.id == board_data["content_id"])
         )
 
-        return {
-            **dict(board_data),
-            "content": board_content_data["content"]
-        }
+        return {**dict(board_data), "content": board_content_data["content"]}
