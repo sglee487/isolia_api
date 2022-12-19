@@ -17,7 +17,8 @@ class BoardManager:
     @staticmethod
     async def get_board_list(board_type: BoardType):
         board_list = await database.fetch_all(
-            board.select().where(board.c.board_type == board_type)
+            board.select().where(board.c.board_type == board_type).filter(board.c.is_deleted == False).order_by(
+                board.c.created_at.desc())
         )
         return board_list
 
