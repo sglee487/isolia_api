@@ -13,7 +13,16 @@ user = sqlalchemy.Table(
     sqlalchemy.Column("email", sqlalchemy.String(120), nullable=False),
     UniqueConstraint("login_type", "email", name="type_email"),
     sqlalchemy.Column("password", sqlalchemy.String(255)),
-    sqlalchemy.Column("display_name", sqlalchemy.String(120), nullable=False, server_default="ㅇㅇ"),
-    sqlalchemy.Column("role", sqlalchemy.Enum(RoleType), nullable=False, server_default=RoleType.user.name),
-    sqlalchemy.Column("is_active", sqlalchemy.Boolean, nullable=False, server_default="1")
+    sqlalchemy.Column(
+        "display_name", sqlalchemy.String(120), nullable=False, server_default="ㅇㅇ"
+    ),
+    sqlalchemy.Column(
+        "role",
+        sqlalchemy.Enum(RoleType),
+        nullable=False,
+        server_default=RoleType.user.name,
+    ),
+    sqlalchemy.Column(
+        "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
+    ),
 )

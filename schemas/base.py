@@ -26,7 +26,9 @@ class PasswordField(str):
     @classmethod
     def validate(cls, password):
         try:
-            tested = re.match('^.*(?=.{8,255})(?=.*[0-9])(?=.*[a-zA-Z]).*$', password)[0]
+            tested = re.match("^.*(?=.{8,255})(?=.*[0-9])(?=.*[a-zA-Z]).*$", password)[
+                0
+            ]
             return tested
         except TypeError:
             raise ValueError("Password is not valid")
