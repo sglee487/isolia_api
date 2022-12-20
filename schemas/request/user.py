@@ -1,5 +1,3 @@
-from fastapi import Query
-
 from models import LoginType
 from schemas.base import UserBase, PasswordField
 

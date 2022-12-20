@@ -16,10 +16,11 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-async def get_user_response(user_data, sns_token=None):
-    token = AuthManager.encode_token(user_data) if not sns_token else sns_token
+async def get_user_response(user_data):
+    if not user_data.get('token', None):
+        user_data['token'] = AuthManager.encode_token(user_data)
     return {
-        "token": token,
+        "token": user_data['token'],
         "login_type": user_data["login_type"].name,
         "email": user_data["email"],
         "display_name": user_data["display_name"],
@@ -55,7 +56,9 @@ class UserManager:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "Wrong email or password")
             elif not user_do["is_active"]:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
-            return await get_user_response(user_do)
+            return await get_user_response({
+                **user_do
+            })
 
         if user_data["login_type"] == LoginType.google:
             google_credential = jwt.decode(user_data["sns_token"], verify=False)
@@ -85,12 +88,15 @@ class UserManager:
                 )
             elif not user_do["is_active"]:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
-            return await get_user_response(user_do, google_token)
+            return await get_user_response({
+                **user_do,
+                "token": google_token,
+            })
 
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid")
 
     @staticmethod
-    async def refresh_token(user_data):
+    async def check_token(user_data):
         return await get_user_response(user_data)
 
     @staticmethod

@@ -83,6 +83,7 @@ class CustomHTTPBearer(HTTPBearer):
         res = await super().__call__(request)
         user_data = await AuthManager.get_userdata_from_auth_token(res.credentials)
         request.state.user = user_data
+        request.state.token = res.credentials
         return user_data
 
 
