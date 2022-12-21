@@ -14,13 +14,14 @@ from models import user
 
 class AuthManager:
     @staticmethod
-    def encode_token(user_data):
+    def encode_token(user_data) -> (str, datetime):
         try:
+            exp = datetime.utcnow() + timedelta(hours=8)
             payload = {
                 "sub": user_data["id"],
-                "exp": datetime.utcnow() + timedelta(hours=8),
+                "exp": exp,
             }
-            return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256")
+            return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256"), exp
         except Exception as ex:
             # TODO: log
             raise ex
@@ -52,7 +53,7 @@ class AuthManager:
             user_data = await database.fetch_one(
                 user.select().where(user.c.id == payload["sub"])
             )
-            return user_data
+            return {**user_data, "token": credentials, "exp": payload["exp"]}
         except jwt.ExpiredSignatureError:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
         except jwt.InvalidTokenError:
@@ -61,7 +62,7 @@ class AuthManager:
                 user_data = await database.fetch_one(
                     user.select().where(user.c.sns_sub == payload["sub"])
                 )
-                return user_data
+                return {**user_data, "token": credentials, "exp": payload["exp"]}
             except google_jwt.exceptions.RefreshError:
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
             except Exception:
@@ -83,7 +84,6 @@ class CustomHTTPBearer(HTTPBearer):
         res = await super().__call__(request)
         user_data = await AuthManager.get_userdata_from_auth_token(res.credentials)
         request.state.user = user_data
-        request.state.token = res.credentials
         return user_data
 
 

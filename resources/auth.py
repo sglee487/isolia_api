@@ -54,8 +54,9 @@ async def login_with_token(request: Request):
     user = request.state.user
     return await UserManager.check_token(
         {
-            "token": request.state.token,
-            "id": user.id,
+            "token": user["token"],
+            "exp": user["exp"],
+            "id": user["id"],
             "login_type": user["login_type"],
             "email": user["email"],
             "display_name": user["display_name"],
