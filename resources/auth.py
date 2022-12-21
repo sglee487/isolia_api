@@ -52,10 +52,12 @@ async def login(user_data: UserSignIn):
 )
 async def login_with_token(request: Request):
     user = request.state.user
+    token = request.state.token
+    exp = request.state.exp
     return await UserManager.check_token(
         {
-            "token": user["token"],
-            "exp": user["exp"],
+            "token": token,
+            "exp": exp,
             "id": user["id"],
             "login_type": user["login_type"],
             "email": user["email"],

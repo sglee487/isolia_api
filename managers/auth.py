@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
+from databases.interfaces import Record
 
 from db import database
 from models import user
@@ -45,27 +46,28 @@ class AuthManager:
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
 
     @staticmethod
-    async def get_userdata_from_auth_token(credentials):
+    async def get_userdata_from_auth_token(credentials) -> (Record, str):
         try:
             payload = jwt.decode(
                 credentials, config("SECRET_KEY"), algorithms=["HS256"]
             )
-            user_data = await database.fetch_one(
+            user_do = await database.fetch_one(
                 user.select().where(user.c.id == payload["sub"])
             )
-            return {**user_data, "token": credentials, "exp": payload["exp"]}
+            return user_do, payload["exp"]
         except jwt.ExpiredSignatureError:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
         except jwt.InvalidTokenError:
             try:
-                payload = google_jwt.decode(credentials, verify=False)
-                user_data = await database.fetch_one(
+                payload = google_jwt.decode(credentials, certs=config("GOOGLE_CLIENT_ID"))
+                user_do = await database.fetch_one(
                     user.select().where(user.c.sns_sub == payload["sub"])
                 )
-                return {**user_data, "token": credentials, "exp": payload["exp"]}
+                return user_do, payload["exp"]
             except google_jwt.exceptions.RefreshError:
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-            except Exception:
+            except Exception as ex:
+                print(ex)
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
 
 
@@ -82,9 +84,11 @@ class AppHTTPBearer(HTTPBearer):
 class CustomHTTPBearer(HTTPBearer):
     async def __call__(self, request: Request) -> HTTPAuthorizationCredentials | None:
         res = await super().__call__(request)
-        user_data = await AuthManager.get_userdata_from_auth_token(res.credentials)
-        request.state.user = user_data
-        return user_data
+        user_do, exp = await AuthManager.get_userdata_from_auth_token(res.credentials)
+        request.state.user = user_do
+        request.state.token = res.credentials
+        request.state.exp = exp
+        return res
 
 
 oauth2_app = AppHTTPBearer()
