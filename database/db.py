@@ -9,107 +9,27 @@ dynamodb = resource("dynamodb",
 
 tables = [
     {
-        "TableName": "users",
+        "TableName": "isolia_users",
         "AttributeDefinitions": [
             {
-                'AttributeName': 'login_type',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'email',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'sns_sub',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'password',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'display_name',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'role',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'is_active',
-                'AttributeType': 'BOOL'
-            },
-            {
-                'AttributeName': 'created_at',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'updated_at',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'deleted_at',
+                'AttributeName': 'id',
                 'AttributeType': 'S'
             }
         ],
         "KeySchema": [
             {
-                'AttributeName': 'login_type',
+                'AttributeName': 'id',
                 'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'email',
-                'KeyType': 'HASH'
-            },
+            }
         ],
     },
     {
-        "TableName": "boards",
+        "TableName": "isolia_boards",
         "AttributeDefinitions": [
             {
                 'AttributeName': 'id',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'board_type',
                 'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'title',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'content',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'login_type',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'email',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'created_at',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'updated_at',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'deleted_at',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'is_deleted',
-                'AttributeType': 'BOOL'
-            },
-            {
-                'AttributeName': 'is_notice',
-                'AttributeType': 'BOOL'
-            },
+            }
         ],
         "KeySchema": [
             {

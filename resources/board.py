@@ -3,7 +3,7 @@ from fastapi.params import Depends
 from starlette.requests import Request
 
 from managers.auth import oauth2_app, oauth2_scheme
-from managers.board import BoardManager
+# from managers.board import BoardManager
 from models.enums import RoleType, BoardType
 
 from schemas.request.board import BoardCreateIn
@@ -13,36 +13,36 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 router = APIRouter(tags=["Board"])
 
 
-@router.get(
-    "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
-)
-async def get_board_list(board_type: BoardType):
-    return await BoardManager.get_board_list(board_type)
-
-
-@router.post(
-    "/board/{board_type}",
-    dependencies=[Depends(oauth2_scheme)],
-    status_code=HTTP_201_CREATED,
-)
-async def write_board(
-    request: Request, board_type: BoardType, post_data: BoardCreateIn
-):
-    if (
-        request.state.user.role != RoleType.admin.value
-        and board_type != BoardType.suggestion
-    ):
-        return {"message": "You can't write this board."}
-    return await BoardManager.write_board(request, board_type, post_data.dict())
-
-
-@router.get(
-    "/board/{board_type}/{board_id}",
-    dependencies=[Depends(oauth2_app)],
-    status_code=HTTP_200_OK,
-)
-async def get_board(board_id: int):
-    return await BoardManager.get_board(board_id)
+# @router.get(
+#     "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
+# )
+# async def get_board_list(board_type: BoardType):
+#     return await BoardManager.get_board_list(board_type)
+#
+#
+# @router.post(
+#     "/board/{board_type}",
+#     dependencies=[Depends(oauth2_scheme)],
+#     status_code=HTTP_201_CREATED,
+# )
+# async def write_board(
+#     request: Request, board_type: BoardType, post_data: BoardCreateIn
+# ):
+#     if (
+#         request.state.user.role != RoleType.admin.value
+#         and board_type != BoardType.suggestion
+#     ):
+#         return {"message": "You can't write this board."}
+#     return await BoardManager.write_board(request, board_type, post_data.dict())
+#
+#
+# @router.get(
+#     "/board/{board_type}/{board_id}",
+#     dependencies=[Depends(oauth2_app)],
+#     status_code=HTTP_200_OK,
+# )
+# async def get_board(board_id: int):
+#     return await BoardManager.get_board(board_id)
 
 
 # made by copilot

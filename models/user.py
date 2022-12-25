@@ -1,28 +1,17 @@
-import sqlalchemy
-from sqlalchemy import UniqueConstraint
+from pydantic import BaseModel, Field
+from datetime import datetime
 
-from db import metadata
-from models.enums import RoleType, LoginType
+from utils.utils import generate_random_name
 
-user = sqlalchemy.Table(
-    "users",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("sns_sub", sqlalchemy.String(60)),
-    sqlalchemy.Column("login_type", sqlalchemy.Enum(LoginType), nullable=False),
-    sqlalchemy.Column("email", sqlalchemy.String(120), nullable=False),
-    UniqueConstraint("login_type", "email", name="type_email"),
-    sqlalchemy.Column("password", sqlalchemy.String(255)),
-    sqlalchemy.Column(
-        "display_name", sqlalchemy.String(120), nullable=False, server_default="ㅇㅇ"
-    ),
-    sqlalchemy.Column(
-        "role",
-        sqlalchemy.Enum(RoleType),
-        nullable=False,
-        server_default=RoleType.user.name,
-    ),
-    sqlalchemy.Column(
-        "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
-    ),
-)
+
+class User(BaseModel):
+    login_type: str
+    email: str
+    sns_sub: str
+    password: str
+    display_name: str = Field(default_factory=generate_random_name)
+    role: str
+    is_active: bool
+    created_at: str = Field(default_factory=datetime.now)
+    updated_at: str = Field(default_factory=datetime.now)
+    deleted_at: str | None = Field()
