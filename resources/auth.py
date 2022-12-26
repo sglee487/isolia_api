@@ -5,6 +5,7 @@ from starlette.requests import Request
 from managers.auth import oauth2_app, oauth2_scheme
 from managers.user import UserManager
 from schemas.request.user import UserRegisterIn, UserSignIn, UserUpdateIn
+from models.user import User
 
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 

@@ -9,7 +9,7 @@ dynamodb = resource("dynamodb",
 
 tables = [
     {
-        "TableName": "isolia_users",
+        "TableName": config("DB_USER_TABLE_NAME"),
         "AttributeDefinitions": [
             {
                 'AttributeName': 'id',

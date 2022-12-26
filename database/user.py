@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse
 from boto3.dynamodb.conditions import Key
 
 from database.db import dynamodb
+from decouple import config
 
-table = dynamodb.Table("users")
+table = dynamodb.Table(config("DB_USER_TABLE_NAME"))
 
 
 async def create_user(user: dict):

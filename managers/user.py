@@ -7,7 +7,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
 # from db import database
 from database.user import create_user, get_user, delete_user, update_user
-# from managers.auth import AuthManager
+from managers.auth import AuthManager
 # from models import user, LoginType, RoleType
 from utils.utils import generate_random_name
 
@@ -20,10 +20,10 @@ async def get_user_response(user_data):
     return {
         "token": user_data["token"],
         "exp": user_data["exp"],
-        "login_type": user_data["login_type"].name,
+        "login_type": user_data["login_type"],
         "email": user_data["email"],
         "display_name": user_data["display_name"],
-        "role": user_data["role"].name,
+        "role": user_data["role"],
     }
 
 
@@ -33,16 +33,15 @@ class UserManager:
         user_data["password"] = pwd_context.hash(user_data["password"])
         user_data["is_active"] = True
         try:
-            id_ = await create_user(user_data)
+            user_response = await create_user(user_data)
             # id_ = await database.execute(user.insert().values(**user_data))
         except UniqueViolationError:
             raise HTTPException(
                 HTTP_400_BAD_REQUEST, "User with this login type & email already exists"
             )
-        print(id_)
         # user_do = await database.fetch_one(user.select().where(user.c.id == id_))
-        # token, exp = AuthManager.encode_token(user_do)
-        # return await get_user_response({**user_do, "token": token, "exp": exp})
+        token, exp = AuthManager.encode_token(user_response)
+        return await get_user_response({**user_response, "token": token, "exp": exp})
 
     # @staticmethod
     # async def login(user_data):

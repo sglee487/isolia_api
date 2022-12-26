@@ -13,19 +13,19 @@ from databases.interfaces import Record
 from models import user
 
 
-# class AuthManager:
-#     @staticmethod
-#     def encode_token(user_data) -> (str, datetime):
-#         try:
-#             exp = datetime.utcnow() + timedelta(hours=8)
-#             payload = {
-#                 "sub": user_data["id"],
-#                 "exp": exp,
-#             }
-#             return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256"), exp
-#         except Exception as ex:
-#             # TODO: log
-#             raise ex
+class AuthManager:
+    @staticmethod
+    def encode_token(user_data) -> (str, datetime):
+        try:
+            exp = int((datetime.utcnow() + timedelta(hours=8)).timestamp())
+            payload = {
+                "sub": user_data["id"],
+                "exp": exp,
+            }
+            return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256"), exp
+        except Exception as ex:
+            # TODO: log
+            raise ex
 #
 #     @staticmethod
 #     def decode_token(credentials):
