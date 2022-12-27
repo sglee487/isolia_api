@@ -1,3 +1,5 @@
+import uuid
+
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from passlib.context import CryptContext
@@ -32,6 +34,8 @@ class UserManager:
     async def register(user_data):
         user_data["password"] = pwd_context.hash(user_data["password"])
         user_data["is_active"] = True
+        user_data["id"] = str(uuid.uuid4())
+        user_data["login_type"] = user_data["login_type"].name
         try:
             user_response = await create_user(user_data)
             # id_ = await database.execute(user.insert().values(**user_data))

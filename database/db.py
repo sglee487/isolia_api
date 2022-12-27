@@ -12,19 +12,27 @@ tables = [
         "TableName": config("DB_USER_TABLE_NAME"),
         "AttributeDefinitions": [
             {
-                'AttributeName': 'id',
+                'AttributeName': 'email',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'login_type',
                 'AttributeType': 'S'
             }
         ],
         "KeySchema": [
             {
-                'AttributeName': 'id',
+                'AttributeName': 'email',
                 'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'login_type',
+                'KeyType': 'RANGE'
             }
         ],
     },
     {
-        "TableName": "isolia_boards",
+        "TableName": config("DB_BOARD_TABLE_NAME"),
         "AttributeDefinitions": [
             {
                 'AttributeName': 'id',

@@ -12,8 +12,7 @@ from models import LoginType, RoleType
 
 
 class UserRegisterIn(UserBase):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    login_type: str # LoginType
+    login_type: LoginType
     password: PasswordField
     display_name: str = Field(default_factory=generate_random_name)
     role: str = RoleType.user.name # RoleType
