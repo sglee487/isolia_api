@@ -6,7 +6,7 @@ from email_validator import validate_email as validate_e, EmailNotValidError
 
 class EmailField(str):
     @classmethod
-    def __get_validator__(cls):
+    def __get_validators__(cls):
         yield cls.validate
 
     @classmethod
@@ -20,7 +20,7 @@ class EmailField(str):
 
 class PasswordField(str):
     @classmethod
-    def __get_validator__(cls):
+    def __get_validators__(cls):
         yield cls.validate
 
     @classmethod
