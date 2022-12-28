@@ -2,11 +2,10 @@ import uuid
 
 from pydantic import BaseModel, Field
 
-from models import LoginType
 from schemas.base import UserBase, PasswordField
 
 from utils.utils import generate_random_name
-from models import LoginType, RoleType
+from models.enums import LoginType, RoleType
 
 
 class UserRegisterIn(UserBase):

@@ -5,7 +5,7 @@ from boto3.dynamodb.conditions import Key
 from database.db import dynamodb
 from decouple import config
 
-from models import LoginType, RoleType
+from models.enums import LoginType, RoleType
 from schemas.base import EmailField
 
 table = dynamodb.Table(config("DB_USER_TABLE_NAME"))

@@ -11,8 +11,7 @@ from databases.interfaces import Record
 
 # from db import database
 from database.user import create_user, get_user, delete_user, update_user
-from models import user
-from models import LoginType, RoleType
+from models.enums import LoginType, RoleType
 
 
 class AuthManager:
@@ -63,11 +62,9 @@ class AuthManager:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
         except jwt.InvalidTokenError:
             try:
-                payload = google_jwt.decode(credentials, certs=config("GOOGLE_CLIENT_ID"))
-                # user_do = await database.fetch_one(
-                #     user.select().where(user.c.sns_sub == payload["sub"])
-                # )
-                # return user_do, payload["exp"]
+                payload = google_jwt.decode(credentials, verify=False)
+                user_do = await get_user(LoginType.google, payload["email"])
+                return user_do, payload["exp"]
             except google_jwt.exceptions.RefreshError:
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
             except Exception as ex:

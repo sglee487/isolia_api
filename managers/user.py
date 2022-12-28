@@ -4,14 +4,14 @@ from datetime import datetime
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from passlib.context import CryptContext
-from google.auth import jwt
+from google.auth import jwt as google_jwt
 from decouple import config
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
 # from db import database
 from database.user import create_user, get_user, delete_user, update_user
 from managers.auth import AuthManager
-from models import user, LoginType, RoleType
+from models.enums import LoginType, RoleType
 from utils.utils import generate_random_name
 
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
@@ -34,16 +34,20 @@ class UserManager:
 
     @staticmethod
     async def register(user_data):
-        user_data["login_type"] = user_data["login_type"].name
-        user_data["password"] = pwd_context.hash(user_data["password"])
-        user_data["role"] = RoleType.user.name
-        user_data["is_active"] = True
-        user_data["updated_at"] = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        user_data["deleted_at"] = None
-        user_data["id"] = str(uuid.uuid4())
+        user_data["login_type"] = user_data["login_type"].value
         try:
-            user_response = await create_user(user_data)
-            # id_ = await database.execute(user.insert().values(**user_data))
+            user_response = await create_user(
+                {
+                    **user_data,
+                    "password": pwd_context.hash(user_data["password"]),
+                    "role": RoleType.user.value,
+                    "is_active": True,
+                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    "created_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    "deleted_at": None,
+                    "id": str(uuid.uuid4()),
+                }
+            )
         except UniqueViolationError:
             raise HTTPException(
                 HTTP_400_BAD_REQUEST, "User with this login type & email already exists"
@@ -65,34 +69,30 @@ class UserManager:
             token, exp = AuthManager.encode_token(user_do)
             return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
 
-        # if user_data["login_type"] == LoginType.google:
-        #     google_credential = jwt.decode(user_data["sns_token"], verify=False)
-        #     if google_credential["aud"] != config("GOOGLE_CLIENT_ID"):
-        #         raise HTTPException(
-        #             status_code=HTTP_403_FORBIDDEN,
-        #             detail="Invalid authentication credentials",
-        #         )
-        #     user_do = await database.fetch_one(
-        #         user.select()
-        #         .where(user.c.email == google_credential["email"])
-        #         .where(user.c.login_type == LoginType.google)
-        #     )
-        #     if not user_do:
-        #         user_data = {
-        #             "login_type": LoginType.google,
-        #             "sns_sub": google_credential["sub"],
-        #             "email": google_credential["email"],
-        #             "display_name": generate_random_name(),
-        #             "role": RoleType.user,
-        #             "is_active": True,
-        #         }
-        #         id_ = await database.execute(user.insert().values(**user_data))
-        #         user_do = await database.fetch_one(
-        #             user.select().where(user.c.id == id_)
-        #         )
-        #     elif not user_do["is_active"]:
-        #         raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
-        #     return await UserManager.get_user_response({**user_do, "token": user_data["sns_token"], "exp": google_credential["exp"]})
+        if user_data["login_type"] == LoginType.google:
+            google_credential = google_jwt.decode(user_data["sns_token"], verify=False)
+            if google_credential["aud"] != config("GOOGLE_CLIENT_ID"):
+                raise HTTPException(
+                    status_code=HTTP_403_FORBIDDEN,
+                    detail="Invalid authentication credentials",
+                )
+            user_do = await get_user(user_data["login_type"], google_credential["email"])
+            if not user_do:
+                user_do = await create_user({
+                    "login_type": LoginType.google.value,
+                    "sns_sub": google_credential["sub"],
+                    "email": google_credential["email"],
+                    "display_name": generate_random_name(),
+                    "role": RoleType.user.value,
+                    "is_active": True,
+                    "created_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    "deleted_at": None,
+                    "id": str(uuid.uuid4())
+                })
+            elif not user_do["is_active"]:
+                raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
+            return await UserManager.get_user_response({**user_do, "token": user_data["sns_token"], "exp": google_credential["exp"]})
 
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid")
     #
