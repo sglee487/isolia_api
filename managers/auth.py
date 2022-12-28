@@ -19,7 +19,9 @@ class AuthManager:
         try:
             exp = int((datetime.utcnow() + timedelta(hours=8)).timestamp())
             payload = {
-                "sub": user_data["id"],
+                "login_type": user_data["login_type"],
+                "email": user_data["email"],
+                "id": user_data["id"],
                 "exp": exp,
             }
             return jwt.encode(payload, config("SECRET_KEY"), algorithm="HS256"), exp

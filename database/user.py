@@ -5,6 +5,9 @@ from boto3.dynamodb.conditions import Key
 from database.db import dynamodb
 from decouple import config
 
+from models import LoginType, RoleType
+from schemas.base import EmailField
+
 table = dynamodb.Table(config("DB_USER_TABLE_NAME"))
 
 
@@ -16,23 +19,12 @@ async def create_user(user: dict):
         return JSONResponse(content=e.response["Error"], status_code=500)
 
 
-async def get_user(id: str):
+async def get_user(login_type: LoginType, email: EmailField):
     try:
-        response = table.query(
-            KeyConditionExpression=Key("id").eq(id)
+        response = table.get_item(
+            Key={'email': email, 'login_type': login_type.name}
         )
-        return response["Items"]
-    except ClientError as e:
-        return JSONResponse(content=e.response["Error"], status_code=500)
-
-
-async def get_users():
-    try:
-        response = table.scan(
-            Limit=5,
-            AttributesToGet=["username", "id"]
-        )
-        return response["Items"]
+        return response["Item"]
     except ClientError as e:
         return JSONResponse(content=e.response["Error"], status_code=500)
 
