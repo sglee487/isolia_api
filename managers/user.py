@@ -1,7 +1,6 @@
 import uuid
 
 from datetime import datetime
-from pytz import timezone
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from passlib.context import CryptContext
@@ -38,8 +37,7 @@ class UserManager:
         user_data["password"] = pwd_context.hash(user_data["password"])
         user_data["role"] = RoleType.user.name
         user_data["is_active"] = True
-        user_data["created_at"] = datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d_%H-%M-%S")
-        user_data["updated_at"] = datetime.now(timezone('Asia/Seoul')).strftime("%Y-%m-%d_%H-%M-%S")
+        user_data["updated_at"] = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
         user_data["deleted_at"] = None
         user_data["id"] = str(uuid.uuid4())
         try:

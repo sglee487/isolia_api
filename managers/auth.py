@@ -47,30 +47,31 @@ class AuthManager:
 #             except Exception:
 #                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
 #
-#     @staticmethod
-#     async def get_userdata_from_auth_token(credentials) -> (Record, str):
-#         try:
-#             payload = jwt.decode(
-#                 credentials, config("SECRET_KEY"), algorithms=["HS256"]
-#             )
-#             user_do = await database.fetch_one(
-#                 user.select().where(user.c.id == payload["sub"])
-#             )
-#             return user_do, payload["exp"]
-#         except jwt.ExpiredSignatureError:
-#             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-#         except jwt.InvalidTokenError:
-#             try:
-#                 payload = google_jwt.decode(credentials, certs=config("GOOGLE_CLIENT_ID"))
-#                 user_do = await database.fetch_one(
-#                     user.select().where(user.c.sns_sub == payload["sub"])
-#                 )
-#                 return user_do, payload["exp"]
-#             except google_jwt.exceptions.RefreshError:
-#                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-#             except Exception as ex:
-#                 print(ex)
-#                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
+    @staticmethod
+    async def get_userdata_from_auth_token(credentials) -> (Record, str):
+        try:
+            payload = jwt.decode(
+                credentials, config("SECRET_KEY"), algorithms=["HS256"]
+            )
+            print(payload)
+            # user_do = await database.fetch_one(
+            #     user.select().where(user.c.id == payload["sub"])
+            # )
+            # return user_do, payload["exp"]
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
+        except jwt.InvalidTokenError:
+            try:
+                payload = google_jwt.decode(credentials, certs=config("GOOGLE_CLIENT_ID"))
+                # user_do = await database.fetch_one(
+                #     user.select().where(user.c.sns_sub == payload["sub"])
+                # )
+                # return user_do, payload["exp"]
+            except google_jwt.exceptions.RefreshError:
+                raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
+            except Exception as ex:
+                print(ex)
+                raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
 
 
 class AppHTTPBearer(HTTPBearer):
