@@ -17,6 +17,6 @@ class User(BaseModel):
     display_name: str = Field(default_factory=generate_random_name)
     role: str # RoleType
     is_active: bool = True
-    created_at: str = Field(default_factory=datetime.utcnow)
-    updated_at: str = Field(default_factory=datetime.utcnow)
+    created_at: str = Field(default_factory=datetime.now)
+    updated_at: str = Field(default_factory=datetime.now)
     deleted_at: str | None = Field()

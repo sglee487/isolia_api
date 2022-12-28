@@ -24,7 +24,7 @@ async def login_with_token(request: Request):
     user = request.state.user
     token = request.state.token
     exp = request.state.exp
-    return await UserManager.check_token(
+    return await UserManager.get_user_response(
         {
             "token": token,
             "exp": exp,

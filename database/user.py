@@ -22,12 +22,13 @@ async def create_user(user: dict):
 async def get_user(login_type: LoginType, email: EmailField):
     try:
         response = table.get_item(
-            Key={'email': email, 'login_type': login_type.name}
+            Key={'email': email, 'login_type': login_type.value}
         )
         return response["Item"]
     except ClientError as e:
         return JSONResponse(content=e.response["Error"], status_code=500)
-
+    except Exception as e:
+        print(e)
 
 async def delete_user(user: dict):
     try:
