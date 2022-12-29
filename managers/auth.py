@@ -1,9 +1,6 @@
 from datetime import datetime, timedelta
 
 import jwt
-from google.auth import jwt as google_jwt
-from google.auth.transport import requests as google_requests
-from google.oauth2.id_token import verify_oauth2_token
 from decouple import config
 from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -11,11 +8,9 @@ from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from databases.interfaces import Record
 
-# from db import database
 from database.user import create_user, get_user, delete_user, update_user
 from models.enums import LoginType, RoleType
 
-google_request = google_requests.Request()
 
 class AuthManager:
     @staticmethod
@@ -32,48 +27,26 @@ class AuthManager:
         except Exception as ex:
             # TODO: log
             raise ex
-#
-#     @staticmethod
-#     def decode_token(credentials):
-#         try:
-#             payload = jwt.decode(
-#                 credentials, config("SECRET_KEY"), algorithms=["HS256"]
-#             )
-#             return payload
-#         except jwt.ExpiredSignatureError:
-#             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-#         except jwt.InvalidTokenError:
-#             try:
-#                 payload = google_jwt.decode(credentials, verify=False)
-#                 return payload
-#             except google_jwt.exceptions.RefreshError:
-#                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-#             except Exception:
-#                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
-#
+
     @staticmethod
-    async def get_userdata_from_auth_token(credentials) -> (Record, str):
+    def decode_token(credentials):
         try:
-            payload = verify_oauth2_token(credentials, google_request)
-            user_do = await get_user(LoginType(payload["login_type"]), payload["email"])
-            if user_do['id'] != payload['id']:
-                raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
-            return user_do, payload["exp"]
+            payload = jwt.decode(
+                credentials, config("SECRET_KEY"), algorithms=["HS256"]
+            )
+            return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
         except jwt.InvalidTokenError:
-            try:
-                payload = google_jwt.decode(credentials, verify=False)
-                user_do = await get_user(LoginType.google, payload["email"])
-                return user_do, payload["exp"]
-            except google_jwt.exceptions.RefreshError:
-                raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
-            except Exception as ex:
-                print(ex)
-                raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
-        except Exception as ex:
-            # raise ValueError("Token expired, {} < {}".format(latest, now))
-            print(ex)
+            raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
+
+    @staticmethod
+    async def get_userdata_from_auth_token(credentials) -> (Record, str):
+        payload = AuthManager.decode_token(credentials)
+        user_do = await get_user(LoginType(payload["login_type"]), payload["email"])
+        if user_do is None:
+            raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
+        return user_do, payload["exp"]
 
 
 class AppHTTPBearer(HTTPBearer):

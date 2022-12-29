@@ -4,11 +4,11 @@ from datetime import datetime
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from passlib.context import CryptContext
-from google.auth import jwt as google_jwt
+from google.auth.transport import requests as google_requests
+from google.oauth2.id_token import verify_oauth2_token
 from decouple import config
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
-# from db import database
 from database.user import create_user, get_user, delete_user, update_user
 from managers.auth import AuthManager
 from models.enums import LoginType, RoleType
@@ -18,6 +18,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+google_request = google_requests.Request()
 
 class UserManager:
 
@@ -70,7 +71,7 @@ class UserManager:
             return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
 
         if user_data["login_type"] == LoginType.google:
-            google_credential = google_jwt.decode(user_data["sns_token"], verify=False)
+            google_credential = verify_oauth2_token(user_data["sns_token"], google_request)
             if google_credential["aud"] != config("GOOGLE_CLIENT_ID"):
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN,
@@ -92,7 +93,8 @@ class UserManager:
                 })
             elif not user_do["is_active"]:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
-            return await UserManager.get_user_response({**user_do, "token": user_data["sns_token"], "exp": google_credential["exp"]})
+            token, exp = AuthManager.encode_token(user_do)
+            return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
 
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid")
     #
