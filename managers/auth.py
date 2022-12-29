@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 import jwt
 from google.auth import jwt as google_jwt
+from google.auth.transport import requests as google_requests
+from google.oauth2.id_token import verify_oauth2_token
 from decouple import config
 from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -13,6 +15,7 @@ from databases.interfaces import Record
 from database.user import create_user, get_user, delete_user, update_user
 from models.enums import LoginType, RoleType
 
+google_request = google_requests.Request()
 
 class AuthManager:
     @staticmethod
@@ -51,9 +54,7 @@ class AuthManager:
     @staticmethod
     async def get_userdata_from_auth_token(credentials) -> (Record, str):
         try:
-            payload = jwt.decode(
-                credentials, config("SECRET_KEY"), algorithms=["HS256"]
-            )
+            payload = verify_oauth2_token(credentials, google_request)
             user_do = await get_user(LoginType(payload["login_type"]), payload["email"])
             if user_do['id'] != payload['id']:
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
@@ -70,6 +71,9 @@ class AuthManager:
             except Exception as ex:
                 print(ex)
                 raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
+        except Exception as ex:
+            # raise ValueError("Token expired, {} < {}".format(latest, now))
+            print(ex)
 
 
 class AppHTTPBearer(HTTPBearer):
