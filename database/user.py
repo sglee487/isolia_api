@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from botocore.exceptions import ClientError
 from fastapi.responses import JSONResponse
 from boto3.dynamodb.conditions import Key
@@ -30,6 +32,37 @@ async def get_user(login_type: LoginType, email: EmailField):
     except Exception as e:
         print(e)
 
+
+async def deactivate_user(user: dict):
+    try:
+        response = table.update_item(
+            Key={'email': user['email'], 'login_type': user['login_type'].value},
+            UpdateExpression="SET is_active = :is_active",
+            ExpressionAttributeValues={
+                ':is_active': False,
+                ':deleted_at': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            }
+        )
+        return response
+    except ClientError as e:
+        return JSONResponse(content=e.response["Error"], status_code=500)
+
+
+async def activate_user(user: dict):
+    try:
+        response = table.update_item(
+            Key={'email': user['email'], 'login_type': user['login_type'].value},
+            UpdateExpression="SET is_active = :is_active",
+            ExpressionAttributeValues={
+                ':is_active': True,
+                ':deleted_at': None
+            }
+        )
+        return response
+    except ClientError as e:
+        return JSONResponse(content=e.response["Error"], status_code=500)
+
+
 async def delete_user(user: dict):
     try:
         response = table.delete_item(
@@ -46,16 +79,15 @@ async def delete_user(user: dict):
 async def update_user(user: dict):
     try:
         response = table.update_item(
-            Key={
-                "id": user["id"],
-                "created_at": user["created_at"]
-            },
-            UpdateExpression="SET username = :username, age = :age",
+            Key={'email': user['email'], 'login_type': user['login_type'].value},
+            UpdateExpression="SET display_name = :display_name, password = :new_password, updated_at = :updated_at",
             ExpressionAttributeValues={
-                ":username": user["username"],
-                ":age": user["age"]
-            }
+                ':display_name': user['display_name'],
+                ':new_password': user['password'],
+                ':updated_at': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            },
+            ReturnValues="ALL_NEW"
         )
-        return response
+        return response['Attributes']
     except ClientError as e:
         return JSONResponse(content=e.response["Error"], status_code=500)

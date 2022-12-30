@@ -20,6 +20,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 google_request = google_requests.Request()
 
+
 class UserManager:
 
     @staticmethod
@@ -43,8 +44,8 @@ class UserManager:
                     "password": pwd_context.hash(user_data["password"]),
                     "role": RoleType.user.value,
                     "is_active": True,
-                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                     "created_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                     "deleted_at": None,
                     "id": str(uuid.uuid4()),
                 }
@@ -80,7 +81,7 @@ class UserManager:
             user_do = await get_user(user_data["login_type"], google_credential["email"])
             if not user_do:
                 user_do = await create_user({
-                    "login_type": LoginType.google.value,
+                    "login_type": LoginType.google,
                     "sns_sub": google_credential["sub"],
                     "email": google_credential["email"],
                     "display_name": generate_random_name(),
@@ -97,23 +98,20 @@ class UserManager:
             return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
 
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid")
-    #
-    # @staticmethod
-    # async def update(user_data, current_user):
-    #     if not pwd_context.verify(user_data["password"], current_user["password"]):
-    #         raise HTTPException(403, "Wrong password")
-    #
-    #     await database.execute(
-    #         user.update()
-    #         .where(user.c.id == current_user["id"])
-    #         .values(display_name=user_data["display_name"])
-    #     )
-    #
-    #     if len(user_data["new_password"]) >= 8:
-    #         await database.execute(
-    #             user.update()
-    #             .where(user.c.id == current_user["id"])
-    #             .values(password=pwd_context.hash(user_data["new_password"]))
-    #         )
-    #
-    #     return {"display_name": user_data["display_name"]}
+
+    @staticmethod
+    async def update(user_update_data, current_user, token, exp):
+        if not pwd_context.verify(user_update_data["password"], current_user["password"]):
+            raise HTTPException(403, "Wrong password")
+
+        user_do = await update_user(
+            {
+                "login_type": LoginType[current_user["login_type"]],
+                "email": current_user["email"],
+                "display_name": user_update_data["display_name"],
+                "password": pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != ""
+                else current_user["password"],
+            }
+        )
+
+        return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})

@@ -25,12 +25,14 @@ async def register(user_data: UserRegisterIn):
 @router.patch(
     "/user/",
     dependencies=[Depends(oauth2_scheme)],
-    response_model=UserDisplayNameResponse,
+    response_model=UserResponse,
     status_code=HTTP_200_OK,
 )
-async def update_user(request: Request, user_data: UserUpdateIn):
+async def update_user(request: Request, user_update_data: UserUpdateIn):
     user = request.state.user
-    return await UserManager.update(user_data.dict(), user)
+    token = request.state.token
+    exp = request.state.exp
+    return await UserManager.update(user_update_data.dict(), user, token, exp)
 
 
 @router.post(

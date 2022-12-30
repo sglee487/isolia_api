@@ -3,6 +3,8 @@ import re
 from pydantic import BaseModel
 from email_validator import validate_email as validate_e, EmailNotValidError
 
+from models.enums import LoginType
+
 
 class EmailField(str):
     @classmethod
@@ -34,7 +36,26 @@ class PasswordField(str):
             raise ValueError("Password is not valid")
 
 
+class NewPasswordField(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, password):
+        try:
+            tested = re.match("^.*(?=.{8,255})(?=.*[0-9])(?=.*[a-zA-Z]).*$", password)[
+                0
+            ]
+            return tested
+        except TypeError:
+            if password == "":
+                return password
+            raise ValueError("Password is not valid")
+
+
 class UserBase(BaseModel):
+    login_type: LoginType
     email: EmailField | None
 
 
