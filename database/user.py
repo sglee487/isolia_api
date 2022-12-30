@@ -78,14 +78,25 @@ async def delete_user(user: dict):
 
 async def update_user(user: dict):
     try:
+        if user['login_type'] == LoginType.email:
+            update_expression = "SET display_name = :display_name, password = :new_password, updated_at = :updated_at"
+            expression_attribute_values = {
+                                            ':display_name': user['display_name'],
+                                            ':new_password': user['password'],
+                                            ':updated_at': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                                        }
+        elif user['login_type'] == LoginType.google:
+            update_expression = "SET display_name = :display_name, updated_at = :updated_at"
+            expression_attribute_values = {
+                                            ':display_name': user['display_name'],
+                                            ':updated_at': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                                        }
+        else:
+            raise Exception("Invalid login type")
         response = table.update_item(
             Key={'email': user['email'], 'login_type': user['login_type'].value},
-            UpdateExpression="SET display_name = :display_name, password = :new_password, updated_at = :updated_at",
-            ExpressionAttributeValues={
-                ':display_name': user['display_name'],
-                ':new_password': user['password'],
-                ':updated_at': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            },
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_attribute_values,
             ReturnValues="ALL_NEW"
         )
         return response['Attributes']

@@ -101,17 +101,18 @@ class UserManager:
 
     @staticmethod
     async def update(user_update_data, current_user, token, exp):
-        if not pwd_context.verify(user_update_data["password"], current_user["password"]):
+        if current_user['login_type'] == 'email' and not pwd_context.verify(user_update_data["password"], current_user["password"]):
             raise HTTPException(403, "Wrong password")
 
-        user_do = await update_user(
-            {
+        update_data = {
                 "login_type": LoginType[current_user["login_type"]],
                 "email": current_user["email"],
-                "display_name": user_update_data["display_name"],
-                "password": pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != ""
-                else current_user["password"],
+                "display_name": user_update_data["display_name"]
             }
-        )
+        if current_user['login_type'] == 'email':
+            update_data["password"] = pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != "" \
+                else current_user["password"]
+
+        user_do = await update_user(update_data)
 
         return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
