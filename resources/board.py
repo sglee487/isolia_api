@@ -13,11 +13,11 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 router = APIRouter(tags=["Board"])
 
 
-# @router.get(
-#     "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
-# )
-# async def get_board_list(board_type: BoardType):
-#     return await BoardManager.get_board_list(board_type)
+@router.get(
+    "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
+)
+async def get_board_list(board_type: BoardType):
+    return await BoardManager.get_board_list(board_type)
 #
 #
 # @router.post(

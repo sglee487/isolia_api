@@ -12,6 +12,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from database.user import create_user, get_user, delete_user, update_user
 from managers.auth import AuthManager
 from models.enums import LoginType, RoleType
+from services.s3 import S3Service
 from utils.utils import generate_random_name
 
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
@@ -19,6 +20,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 google_request = google_requests.Request()
+s3 = S3Service()
 
 
 class UserManager:
