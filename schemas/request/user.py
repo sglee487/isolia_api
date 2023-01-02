@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from schemas.base import UserBase, PasswordField, NewPasswordField
 
-from utils.utils import generate_random_name
+from utils.users import generate_random_name
 from models.enums import LoginType, RoleType
 
 

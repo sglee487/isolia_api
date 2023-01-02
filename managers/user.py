@@ -13,7 +13,7 @@ from database.user import create_user, get_user, delete_user, update_user
 from managers.auth import AuthManager
 from models.enums import LoginType, RoleType
 from services.s3 import S3Service
-from utils.utils import generate_random_name
+from utils.users import generate_random_name, generate_profile_urls
 
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
@@ -82,6 +82,7 @@ class UserManager:
                 )
             user_do = await get_user(user_data["login_type"], google_credential["email"])
             if not user_do:
+                picture_32, picture_96 = generate_profile_urls(google_credential["picture"].split('=')[0])
                 user_do = await create_user({
                     "login_type": LoginType.google,
                     "sns_sub": google_credential["sub"],
