@@ -1,8 +1,11 @@
+import os
+
 import boto3
 from decouple import config
 from fastapi import HTTPException
 
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+
 
 class S3Service:
     def __init__(self):
@@ -14,17 +17,19 @@ class S3Service:
         self.bucket = config("AWS_BUCKET_NAME")
         self.region = config("AWS_REGION")
 
-    def upload_file(self, file, object_name=None):
-        if object_name is None:
-            object_name = file.filename
+    async def upload_image(self, path, key):
+        _, ext = os.path.splitext(key)
+        ext = ext[1:]
         try:
-            self.s3.upload_fileobj(
-                file,
+            self.s3.upload_file(
+                path,
                 self.bucket,
-                object_name,
-                ExtraArgs={"ACL": "public-read"},
+                key,
+                ExtraArgs={"ACL": "public-read", "ContentType": f"image/{ext}"},
             )
-            return f"https://{self.bucket}.s3.{self.region}.amazonaws.com/{object_name}"
+            return f"https://{self.bucket}.s3.{self.region}.amazonaws.com/{key}"
+        except ValueError as e:
+            raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR, e)
         except Exception as e:
             raise HTTPException(HTTP_500_INTERNAL_SERVER_ERROR, "S3 service is not available")
 

@@ -82,9 +82,11 @@ class UserManager:
                 )
             user_do = await get_user(user_data["login_type"], google_credential["email"])
             if not user_do:
-                picture_32, picture_96 = generate_profile_urls(google_credential["picture"].split('=')[0])
+                picture_32, picture_96 = await generate_profile_urls(google_credential["picture"].split('=')[0])
                 user_do = await create_user({
-                    "login_type": LoginType.google,
+                    "picture_32": picture_32,
+                    "picture_96": picture_96,
+                    "login_type": LoginType.google.value,
                     "sns_sub": google_credential["sub"],
                     "email": google_credential["email"],
                     "display_name": generate_random_name(),
