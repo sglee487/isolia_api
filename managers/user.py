@@ -32,6 +32,8 @@ class UserManager:
             "exp": user_data["exp"],
             "login_type": user_data["login_type"],
             "email": user_data["email"],
+            "picture_32": user_data["picture_32"],
+            "picture_96": user_data["picture_96"],
             "display_name": user_data["display_name"],
             "role": user_data["role"],
         }

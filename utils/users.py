@@ -33,7 +33,7 @@ async def _remove_file(path):
 
 
 async def upload_resized_image(image, name, key, size):
-    image = image.resize(size)
+    image = image.resize(size, resample=Image.BICUBIC)
     if image.mode != 'RGB':
         image = image.convert('RGB')
     image_path = os.path.join(TEMP_FILES_FOLDER, f"{name}.jpg")

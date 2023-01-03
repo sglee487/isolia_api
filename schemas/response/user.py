@@ -8,6 +8,8 @@ class UserResponse(UserBase):
     exp: int
     login_type: str
     email: str
+    picture_32: str
+    picture_96: str
     display_name: str
     role: str
 

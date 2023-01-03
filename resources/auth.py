@@ -30,6 +30,8 @@ async def login_with_token(request: Request):
             "id": user["id"],
             "login_type": user["login_type"],
             "email": user["email"],
+            "picture_32": user["picture_32"],
+            "picture_96": user["picture_96"],
             "display_name": user["display_name"],
             "role": user["role"],
         }
