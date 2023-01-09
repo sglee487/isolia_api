@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from databases.interfaces import Record
 
-from database.user import get_user
+from database.user import UserDBManager
 from database.models.enums import LoginType
 
 
@@ -18,7 +18,7 @@ class AuthManager:
         try:
             exp = int((datetime.now() + timedelta(hours=8)).timestamp())
             payload = {
-                "login_type": user_data["login_type"],
+                "login_type": user_data["login_type"].value,
                 "email": user_data["email"],
                 "id": user_data["id"],
                 "exp": exp,
@@ -34,6 +34,7 @@ class AuthManager:
             payload = jwt.decode(
                 credentials, config("SECRET_KEY"), algorithms=["HS256"]
             )
+            payload['login_type'] = LoginType(payload['login_type'])
             return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Token is expired")
@@ -43,7 +44,7 @@ class AuthManager:
     @staticmethod
     async def get_userdata_from_auth_token(credentials) -> (Record, str):
         payload = AuthManager.decode_token(credentials)
-        user_do = await get_user(LoginType(payload["login_type"]), payload["email"])
+        user_do = await UserDBManager.get_user(LoginType(payload["login_type"]), payload["email"])
         if user_do is None:
             raise HTTPException(HTTP_401_UNAUTHORIZED, "Invalid token")
         return user_do, payload["exp"]

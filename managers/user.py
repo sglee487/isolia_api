@@ -8,7 +8,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2.id_token import verify_oauth2_token
 from decouple import config
 
-from database.user import create_user, get_user, update_user
+from database.user import UserDBManager
 from managers.auth import AuthManager
 from database.models.enums import LoginType, RoleType
 from services.s3 import S3Service
@@ -29,7 +29,7 @@ class UserManager:
         return {
             "token": user_data["token"],
             "exp": user_data["exp"],
-            "login_type": user_data["login_type"],
+            "login_type": user_data["login_type"].value,
             "email": user_data["email"],
             "picture_32": user_data["picture_32"],
             "picture_96": user_data["picture_96"],
@@ -41,16 +41,15 @@ class UserManager:
     async def register(user_data):
         user_data["login_type"] = user_data["login_type"].value
         try:
-            user_response = await create_user(
+            user_response = await UserDBManager.create_user(
                 {
                     **user_data,
                     "password": pwd_context.hash(user_data["password"]),
                     "role": RoleType.user.value,
                     "is_active": True,
-                    "created_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                    "deleted_at": None,
-                    "id": str(uuid.uuid4()),
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now(),
+                    "deleted_at": None
                 }
             )
         except UniqueViolationError:
@@ -64,7 +63,7 @@ class UserManager:
     @staticmethod
     async def login(user_data):
         if user_data["login_type"] == LoginType.email:
-            user_do = await get_user(user_data["login_type"], user_data["email"])
+            user_do = await UserDBManager.get_user(user_data["login_type"], user_data["email"])
             if not user_do:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "Wrong email or password")
             elif not pwd_context.verify(user_data["password"], user_do["password"]):
@@ -81,10 +80,10 @@ class UserManager:
                     status_code=HTTP_403_FORBIDDEN,
                     detail="Invalid authentication credentials",
                 )
-            user_do = await get_user(user_data["login_type"], google_credential["email"])
+            user_do = await UserDBManager.get_user(user_data["login_type"], google_credential["email"])
             if not user_do:
                 picture_32, picture_96 = await generate_profile_urls(google_credential["picture"].split('=')[0])
-                user_do = await create_user({
+                user_do = await UserDBManager.create_user({
                     "picture_32": picture_32,
                     "picture_96": picture_96,
                     "login_type": LoginType.google.value,
@@ -93,10 +92,9 @@ class UserManager:
                     "display_name": generate_random_name(),
                     "role": RoleType.user.value,
                     "is_active": True,
-                    "created_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                    "updated_at": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-                    "deleted_at": None,
-                    "id": str(uuid.uuid4())
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now(),
+                    "deleted_at": None
                 })
             elif not user_do["is_active"]:
                 raise HTTPException(HTTP_400_BAD_REQUEST, "User is not active")
@@ -116,9 +114,11 @@ class UserManager:
                 "display_name": user_update_data["display_name"]
             }
         if current_user['login_type'] == 'email':
+            if not pwd_context.verify(user_update_data["password"], current_user["password"]):
+                raise HTTPException(HTTP_400_BAD_REQUEST, "Wrong password")
             update_data["password"] = pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != "" \
                 else current_user["password"]
 
-        user_do = await update_user(update_data)
+        user_do = await UserDBManager.update_user(update_data, current_user["id"])
 
         return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
