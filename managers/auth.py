@@ -8,8 +8,8 @@ from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from databases.interfaces import Record
 
-from database.user import create_user, get_user, delete_user, update_user
-from models.enums import LoginType, RoleType
+from database.user import get_user
+from database.models.enums import LoginType
 
 
 class AuthManager:

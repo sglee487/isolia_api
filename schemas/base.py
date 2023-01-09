@@ -3,7 +3,7 @@ import re
 from pydantic import BaseModel
 from email_validator import validate_email as validate_e, EmailNotValidError
 
-from models.enums import LoginType
+from database.models.enums import LoginType
 
 
 class EmailField(str):

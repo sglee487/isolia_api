@@ -1,23 +1,20 @@
 from fastapi import APIRouter
 from fastapi.params import Depends
-from starlette.requests import Request
 
-from managers.auth import oauth2_app, oauth2_scheme
+from managers.auth import oauth2_app
 # from managers.board import BoardManager
-from models.enums import RoleType, BoardType
+from database.models.enums import BoardType
 
-from schemas.request.board import BoardCreateIn
-
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import HTTP_200_OK
 
 router = APIRouter(tags=["Board"])
 
 
-@router.get(
-    "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
-)
-async def get_board_list(board_type: BoardType):
-    return await BoardManager.get_board_list(board_type)
+# @router.get(
+#     "/board/{board_type}", dependencies=[Depends(oauth2_app)], status_code=HTTP_200_OK
+# )
+# async def get_board_list(board_type: BoardType):
+#     return await BoardManager.get_board_list(board_type)
 #
 #
 # @router.post(

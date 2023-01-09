@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 # from db import database
-from database.db import create_tables
+# from database.db import create_tables
+from database.db import database
 from resources.routes import api_router
 
 origins = [
@@ -33,5 +34,9 @@ async def root():
 
 @app.on_event("startup")
 async def startup():
-    create_tables()
+    await database.connect()
 
+
+@app.on_event("shutdown")
+async def startup():
+    await database.disconnect()

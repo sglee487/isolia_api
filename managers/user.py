@@ -7,11 +7,10 @@ from passlib.context import CryptContext
 from google.auth.transport import requests as google_requests
 from google.oauth2.id_token import verify_oauth2_token
 from decouple import config
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
-from database.user import create_user, get_user, delete_user, update_user
+from database.user import create_user, get_user, update_user
 from managers.auth import AuthManager
-from models.enums import LoginType, RoleType
+from database.models.enums import LoginType, RoleType
 from services.s3 import S3Service
 from utils.users import generate_random_name, generate_profile_urls
 
