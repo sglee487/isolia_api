@@ -109,16 +109,19 @@ class UserManager:
             raise HTTPException(403, "Wrong password")
 
         update_data = {
-                "login_type": LoginType[current_user["login_type"]],
-                "email": current_user["email"],
-                "display_name": user_update_data["display_name"]
-            }
+            "login_type": current_user["login_type"],
+            "email": current_user["email"]
+        }
         if current_user['login_type'] == 'email':
             if not pwd_context.verify(user_update_data["password"], current_user["password"]):
                 raise HTTPException(HTTP_400_BAD_REQUEST, "Wrong password")
             update_data["password"] = pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != "" \
                 else current_user["password"]
 
-        user_do = await UserDBManager.update_user(update_data, current_user["id"])
+        # update_data["picture_32"] =
+        # update_data["picture_96"] =
+
+
+        user_do = await UserDBManager.update_user(user_update_data, current_user["id"])
 
         return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})

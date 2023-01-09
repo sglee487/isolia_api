@@ -11,6 +11,7 @@ class UserRegisterIn(UserBase):
 
 
 class UserUpdateIn(UserBase):
+    picture: str
     display_name: str
     password: NewPasswordField
     new_password: NewPasswordField
