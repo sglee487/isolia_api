@@ -71,9 +71,9 @@ class UserDBManager:
             return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def update_user(user_data: dict, user_id: int):
+    async def update_user(update_data: dict, user_id: int):
         id_ = await database.execute(
-            user.update().where(user.c.id == user_id).values(**user_data)
+            user.update().where(user.c.id == user_id).values(**update_data)
         )
         return id_
         # try:

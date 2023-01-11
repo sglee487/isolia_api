@@ -43,17 +43,26 @@ async def upload_resized_image(image, name, key, size):
     return image
 
 
-async def generate_profile_urls(picture_url=None) -> tuple[str, str]:
-    r = requests.get(picture_url)
+async def generate_profile_urls(picture_url=None, file=None) -> tuple[str, str]:
+    assert picture_url or file
+
     picture_name = str(uuid.uuid4())
-    with open(os.path.join(TEMP_FILES_FOLDER, picture_name), 'wb') as f:
-        f.write(r.content)
-        f.seek(0)
-        image = Image.open(f.name)
+    if picture_url:
+        r = requests.get(picture_url)
+        with open(os.path.join(TEMP_FILES_FOLDER, picture_name), 'wb') as f:
+            f.write(r.content)
+            f.seek(0)
+            image = Image.open(f.name)
+    elif file:
+        image = Image.open(file)
+    else:
+        raise Exception("No picture provided")
+
     picture_32, picture_96 = await asyncio.gather(
         upload_resized_image(image, f"{picture_name}_32", picture_name, (32, 32)),
         upload_resized_image(image, f"{picture_name}_96", picture_name, (96, 96)),
     )
-    asyncio.create_task(_remove_file(f.name))
+    if picture_url:
+        asyncio.create_task(_remove_file(f.name))
 
     return picture_32, picture_96

@@ -1,7 +1,6 @@
 from pydantic import Field
 
 from schemas.base import UserBase, PasswordField, NewPasswordField
-
 from utils.users import generate_random_name
 
 

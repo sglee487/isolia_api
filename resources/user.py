@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 from fastapi.params import Depends
+from fastapi import File, UploadFile
 from starlette.requests import Request
 
 from managers.auth import oauth2_app, oauth2_scheme
 from managers.user import UserManager
+from schemas.base import ProfilePicture
 from schemas.request.user import UserRegisterIn, UserSignIn, UserUpdateIn
 
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
@@ -43,3 +45,12 @@ async def update_user(request: Request, user_update_data: UserUpdateIn):
 )
 async def login(user_data: UserSignIn):
     return await UserManager.login(user_data.dict())
+
+@router.post(
+    "/upload/profile_picture/",
+    dependencies=[Depends(oauth2_scheme)],
+    response_model=ProfilePicture,
+    status_code=HTTP_201_CREATED,
+)
+async def upload_profile_picture(file: UploadFile = File(...)):
+    return await UserManager.upload_profile_picture(file)
