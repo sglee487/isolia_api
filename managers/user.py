@@ -82,7 +82,8 @@ class UserManager:
                 )
             user_do = await UserDBManager.get_user(user_data["login_type"], google_credential["email"])
             if not user_do:
-                picture_32, picture_96 = await generate_profile_urls(picture_url=google_credential["picture"].split('=')[0])
+                picture_32, picture_96 = await generate_profile_urls(
+                    picture_url=google_credential["picture"].split('=')[0])
                 user_do = await UserDBManager.create_user({
                     "picture_32": picture_32,
                     "picture_96": picture_96,
@@ -111,24 +112,22 @@ class UserManager:
             "picture_96": picture_96,
         }
 
-
     @staticmethod
     async def update(user_update_data, current_user, token, exp):
-        if current_user['login_type'] == 'email' and not pwd_context.verify(user_update_data["password"], current_user["password"]):
+        if current_user['login_type'] == 'email' and not pwd_context.verify(user_update_data["password"],
+                                                                            current_user["password"]):
             raise HTTPException(403, "Wrong password")
 
         update_data = {
-            "login_type": current_user["login_type"],
-            "email": current_user["email"],
-            "picture_32": current_user["picture_32"],
-            "picture_96": current_user["picture_96"],
+            "display_name": user_update_data["display_name"],
+            "picture_32": user_update_data["picture_32"],
+            "picture_96": user_update_data["picture_96"],
         }
-        if current_user['login_type'] == 'email':
+        if current_user['login_type'] == 'email' and user_update_data["new_password"] != '':
             if not pwd_context.verify(user_update_data["password"], current_user["password"]):
                 raise HTTPException(HTTP_400_BAD_REQUEST, "Wrong password")
-            update_data["password"] = pwd_context.hash(user_update_data["new_password"]) if user_update_data["new_password"] != "" \
-                else current_user["password"]
+            update_data["password"] = pwd_context.hash(user_update_data["new_password"])
 
-        user_do = await UserDBManager.update_user(user_update_data, current_user["id"])
+        user_do = await UserDBManager.update_user(update_data, current_user["id"])
 
         return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})

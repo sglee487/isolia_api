@@ -73,9 +73,10 @@ class UserDBManager:
     @staticmethod
     async def update_user(update_data: dict, user_id: int):
         id_ = await database.execute(
-            user.update().where(user.c.id == user_id).values(**update_data)
+            user.update().where(user.c.id == user_id).values(update_data)
         )
-        return id_
+        user_do = await database.fetch_one(user.select().where(user.c.id == user_id))
+        return user_do
         # try:
         #     if user['login_type'] == LoginType.email:
         #         update_expression = "SET display_name = :display_name, password = :new_password, updated_at = :updated_at"

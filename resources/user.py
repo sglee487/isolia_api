@@ -11,6 +11,7 @@ from schemas.request.user import UserRegisterIn, UserSignIn, UserUpdateIn
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from schemas.response.user import UserResponse, UserDisplayNameResponse
+
 router = APIRouter(tags=["Users"])
 
 
@@ -45,6 +46,7 @@ async def update_user(request: Request, user_update_data: UserUpdateIn):
 )
 async def login(user_data: UserSignIn):
     return await UserManager.login(user_data.dict())
+
 
 @router.post(
     "/upload/profile_picture/",
