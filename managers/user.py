@@ -74,7 +74,7 @@ class UserManager:
             return await UserManager.get_user_response({**user_do, "token": token, "exp": exp})
 
         if user_data["login_type"] == LoginType.google:
-            google_credential = verify_oauth2_token(user_data["sns_token"], google_request)
+            google_credential = verify_oauth2_token(user_data["sns_token"], google_request, clock_skew_in_seconds=10)
             if google_credential["aud"] != config("GOOGLE_CLIENT_ID"):
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN,
