@@ -1,9 +1,7 @@
 from pydantic import BaseModel
 
-from schemas.base import UserBase, EmailField
+from schemas.base import UserBase, EmailField, ProfilePictureBase
 from database.models.enums import LoginType, RoleType
-
-
 
 
 class UserResponse(UserBase):
@@ -19,3 +17,7 @@ class UserResponse(UserBase):
 
 class UserDisplayNameResponse(BaseModel):
     display_name: str
+
+
+class ProfilePictureResponse(ProfilePictureBase):
+    pass

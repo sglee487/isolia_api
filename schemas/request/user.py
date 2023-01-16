@@ -1,7 +1,7 @@
 from pydantic import Field
 
-from schemas.base import UserBase, ProfilePicture, PasswordField, NewPasswordField
-from utils.users import generate_random_name
+from schemas.base import UserBase, ProfilePictureBase, PasswordField, NewPasswordField
+from utils.user import generate_random_name
 
 
 class UserRegisterIn(UserBase):
@@ -9,7 +9,7 @@ class UserRegisterIn(UserBase):
     display_name: str = Field(default_factory=generate_random_name)
 
 
-class UserUpdateIn(UserBase, ProfilePicture):
+class UserUpdateIn(UserBase, ProfilePictureBase):
     display_name: str
     password: NewPasswordField
     new_password: NewPasswordField

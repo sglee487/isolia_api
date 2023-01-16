@@ -7,6 +7,7 @@ import asyncio
 from PIL import Image
 from services.s3 import S3Service
 
+from utils.util import remove_file
 from constants import TEMP_FILES_FOLDER
 
 s3 = S3Service()
@@ -25,11 +26,7 @@ def generate_random_name() -> str:
         for line in lines:
             noun_list.append(line.strip())
 
-    return f"{random.choice(adj_list)} {random.choice(noun_list)} {random.randrange(1,100)}"
-
-
-async def _remove_file(path):
-    os.remove(path)
+    return f"{random.choice(adj_list)} {random.choice(noun_list)} {random.randrange(1, 100)}"
 
 
 async def upload_resized_image(image, name, key, size):
@@ -39,7 +36,7 @@ async def upload_resized_image(image, name, key, size):
     image_path = os.path.join(TEMP_FILES_FOLDER, f"{name}.jpg")
     image.save(image_path)
     image = await s3.upload_image(image_path, f"profile_images/{size[0]}/{key}.jpg")
-    asyncio.create_task(_remove_file(image_path))
+    asyncio.create_task(remove_file(image_path))
     return image
 
 
@@ -63,6 +60,6 @@ async def generate_profile_urls(picture_url=None, file=None) -> tuple[str, str]:
         upload_resized_image(image, f"{picture_name}_96", picture_name, (96, 96)),
     )
     if picture_url:
-        asyncio.create_task(_remove_file(f.name))
+        asyncio.create_task(remove_file(f.name))
 
     return picture_32, picture_96

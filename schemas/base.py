@@ -64,6 +64,10 @@ class BoardBase(BaseModel):
     content: str
 
 
-class ProfilePicture(BaseModel):
+class ProfilePictureBase(BaseModel):
     picture_32: str
     picture_96: str
+
+
+class ImageBase(BaseModel):
+    image_url: str

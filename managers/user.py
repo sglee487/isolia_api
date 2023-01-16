@@ -12,7 +12,7 @@ from database.user import UserDBManager
 from managers.auth import AuthManager
 from database.models.enums import LoginType, RoleType
 from services.s3 import S3Service
-from utils.users import generate_random_name, generate_profile_urls
+from utils.user import generate_random_name, generate_profile_urls
 
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 

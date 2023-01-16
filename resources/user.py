@@ -5,18 +5,21 @@ from starlette.requests import Request
 
 from managers.auth import oauth2_app, oauth2_scheme
 from managers.user import UserManager
-from schemas.base import ProfilePicture
 from schemas.request.user import UserRegisterIn, UserSignIn, UserUpdateIn
+from schemas.response.user import ProfilePictureResponse
 
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from schemas.response.user import UserResponse, UserDisplayNameResponse
 
-router = APIRouter(tags=["Users"])
+router = APIRouter(
+    prefix="/user",
+    tags=["Users"]
+)
 
 
 @router.post(
-    "/user/",
+    "/",
     dependencies=[Depends(oauth2_app)],
     response_model=UserResponse,
     status_code=HTTP_201_CREATED,
@@ -26,7 +29,7 @@ async def register(user_data: UserRegisterIn):
 
 
 @router.patch(
-    "/user/",
+    "/",
     dependencies=[Depends(oauth2_scheme)],
     response_model=UserResponse,
     status_code=HTTP_200_OK,
@@ -49,9 +52,9 @@ async def login(user_data: UserSignIn):
 
 
 @router.post(
-    "/upload/profile_picture/",
+    "/upload_profile_picture/",
     dependencies=[Depends(oauth2_scheme)],
-    response_model=ProfilePicture,
+    response_model=ProfilePictureResponse,
     status_code=HTTP_201_CREATED,
 )
 async def upload_profile_picture(file: UploadFile = File(...)):
