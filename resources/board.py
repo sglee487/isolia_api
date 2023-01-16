@@ -24,5 +24,6 @@ router = APIRouter(
     # response_model=ProfilePictureResponse,
     # status_code=HTTP_201_CREATED,
 )
-async def upload_image_files(files: list[UploadFile] = File(...)):
-    return await BoardManager.upload_images(files)
+async def upload_image_files(request: Request, files: list[UploadFile] = File(...)):
+    user = request.state.user
+    return await BoardManager.upload_images(files, user.id)
