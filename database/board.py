@@ -5,15 +5,26 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from decouple import config
+from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from database.db import database
-from database.models.board import board
+from database.models import user, board
 from database.models.enums import BoardType
 from schemas.base import EmailField
 
 
 class BoardDBManager:
+
+    @staticmethod
+    async def get_board(board_type: BoardType = None):
+        query = select([board, user]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
+        query = query.where(board.c.is_active)
+        if board_type:
+            query = query.where(board.c.board_type == board_type)
+        query = query.order_by(board.c.created_at.desc())
+        result = await database.fetch_all(query)
+        return result
 
     @staticmethod
     async def post_board(board_type: BoardType, title: str, content: str | None, user_id: int):

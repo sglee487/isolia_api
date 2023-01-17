@@ -11,7 +11,7 @@ from databases.interfaces import Record
 
 from database.board import BoardDBManager
 from managers.auth import AuthManager
-from database.models.enums import LoginType, RoleType
+from database.models.enums import LoginType, RoleType, BoardType
 from schemas.request.board import BoardCreateIn
 from services.s3 import S3Service
 from utils.board import generate_image_urls
@@ -25,6 +25,10 @@ s3 = S3Service()
 
 
 class BoardManager:
+
+    @staticmethod
+    async def get_board_list(board_type: BoardType | None):
+        return await BoardDBManager.get_board(board_type)
 
     @staticmethod
     async def upload_images(files, user_id):
