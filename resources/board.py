@@ -2,15 +2,14 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from fastapi import File, UploadFile
 from starlette.requests import Request
+from databases.interfaces import Record
 
 from managers.auth import oauth2_app, oauth2_scheme
 from managers.board import BoardManager
-from schemas.request.user import UserRegisterIn, UserSignIn, UserUpdateIn
-from schemas.response.user import ProfilePictureResponse
-
+from schemas.request.board import BoardCreateIn
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
-from schemas.response.user import UserResponse, UserDisplayNameResponse
+from database.models.enums import BoardType
 
 router = APIRouter(
     prefix="/board",
@@ -21,9 +20,17 @@ router = APIRouter(
 @router.post(
     "/images/",
     dependencies=[Depends(oauth2_scheme)],
-    # response_model=ProfilePictureResponse,
-    # status_code=HTTP_201_CREATED,
+    status_code=HTTP_201_CREATED,
 )
-async def upload_image_files(request: Request, files: list[UploadFile] = File(...)):
+async def upload_image_files(request: Request, files: list[UploadFile] = File(...)) -> list[str]:
     user = request.state.user
     return await BoardManager.upload_images(files, user.id)
+
+
+@router.post(
+    "/",
+    dependencies=[Depends(oauth2_scheme)],
+)
+async def post_board(request: Request, board_model: BoardCreateIn):
+    user: Record = request.state.user
+    return await BoardManager.post_board(board_model, user.id)

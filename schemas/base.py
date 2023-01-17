@@ -3,7 +3,7 @@ import re
 from pydantic import BaseModel
 from email_validator import validate_email as validate_e, EmailNotValidError
 
-from database.models.enums import LoginType
+from database.models.enums import LoginType, BoardType
 
 
 class EmailField(str):
@@ -60,6 +60,7 @@ class UserBase(BaseModel):
 
 
 class BoardBase(BaseModel):
+    board_type: BoardType
     title: str
     content: str
 
@@ -67,7 +68,3 @@ class BoardBase(BaseModel):
 class ProfilePictureBase(BaseModel):
     picture_32: str
     picture_96: str
-
-
-class ImageBase(BaseModel):
-    image_url: str
