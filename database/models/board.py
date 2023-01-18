@@ -10,7 +10,9 @@ board = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("board_type", sqlalchemy.Enum(BoardType), nullable=False),
     sqlalchemy.Column("title", sqlalchemy.String(120), nullable=False),
-    sqlalchemy.Column("content", sqlalchemy.String(255)),
+    sqlalchemy.Column("content", sqlalchemy.Text),
+    sqlalchemy.Column("preview_text", sqlalchemy.Text),
+    sqlalchemy.Column("preview_image", sqlalchemy.Text),
     sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("users.id")),
     sqlalchemy.Column("hits", sqlalchemy.Integer, server_default="0"),
     sqlalchemy.Column("like", sqlalchemy.Integer, server_default="0"),
@@ -18,8 +20,8 @@ board = sqlalchemy.Table(
     sqlalchemy.Column(
         "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
     ),
-    sqlalchemy.Column("created_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.func.now()),
-    sqlalchemy.Column("updated_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.func.now()),
+    sqlalchemy.Column("created_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.sql.func.now()),
+    sqlalchemy.Column("updated_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.sql.func.now()),
     sqlalchemy.Column("deleted_at", sqlalchemy.DateTime),
 
 )

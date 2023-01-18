@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from decouple import config
 from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+from pytz import timezone
 
 from database.db import database
 from database.models import user, board
@@ -27,13 +28,17 @@ class BoardDBManager:
         return result
 
     @staticmethod
-    async def post_board(board_type: BoardType, title: str, content: str | None, user_id: int):
+    async def post_board(board_type: BoardType, title: str, content: str | None, preview_text: str | None, preview_image: str | None, user_id: int):
         try:
             update_data = {
                 "board_type": board_type.value,
                 "title": title,
                 "content": content,
+                "preview_text": preview_text,
+                "preview_image": preview_image,
                 "user_id": user_id,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now(),
             }
             id_ = await database.execute(
                 board.insert()
