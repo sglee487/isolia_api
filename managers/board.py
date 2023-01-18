@@ -28,9 +28,6 @@ s3 = S3Service()
 class BoardManager:
 
     @staticmethod
-
-
-    @staticmethod
     async def get_board_list(board_type: BoardType | None):
         return await BoardDBManager.get_board(board_type)
 
@@ -46,6 +43,8 @@ class BoardManager:
         if len(soup.text) > 120:
             preview_text += "..."
 
-        preview_images = await generate_image_urls(urls=[soup.img['src']], save_root_path=f"board/preview/{user_id}") if soup.img else None
+        preview_images = await generate_image_urls(urls=[soup.img['src']], size=(256, 192), thumbnail=True,
+                                                   save_root_path=f"board/preview/{user_id}") if soup.img else None
 
-        return await BoardDBManager.post_board(post.board_type, post.title, post.content, preview_text, preview_images[0], user_id)
+        return await BoardDBManager.post_board(post.board_type, post.title, post.content, preview_text,
+                                               preview_images[0], user_id)

@@ -14,7 +14,7 @@ from constants import TEMP_FILES_FOLDER
 s3 = S3Service()
 
 
-async def upload_image_url_file(url=None, file=None, size=None, save_root_path: str = None, add_random_name: bool = False):
+async def upload_image_url_file(url=None, file=None, size=None, thumbnail=False, save_root_path: str = None, add_random_name: bool = False):
     assert url or file
     assert save_root_path
 
@@ -35,7 +35,10 @@ async def upload_image_url_file(url=None, file=None, size=None, save_root_path: 
     if image.mode != 'RGB':
         image = image.convert('RGB')
     if size:
-        image = image.resize(size, resample=Image.BICUBIC)
+        if thumbnail:
+            image.thumbnail(size, resample=Image.LANCZOS)
+        else:
+            image = image.resize(size, resample=Image.BICUBIC)
     upload_filename = f"{name}_{shortuuid.uuid()}{ext}" if add_random_name else f"{name}{ext}"
     image_path = os.path.join(TEMP_FILES_FOLDER, upload_filename)
     image.save(image_path)
@@ -44,12 +47,12 @@ async def upload_image_url_file(url=None, file=None, size=None, save_root_path: 
     return image
 
 
-async def generate_image_urls(urls=None, files=None, size=None, save_root_path: str = None):
+async def generate_image_urls(urls=None, files=None, size=None, thumbnail=False, save_root_path: str = None):
     assert urls or files
     if urls:
         urls = await asyncio.gather(
-            *[asyncio.ensure_future(upload_image_url_file(url=url, size=size, save_root_path=save_root_path)) for url in urls])
+            *[asyncio.ensure_future(upload_image_url_file(url=url, size=size, thumbnail=thumbnail, save_root_path=save_root_path)) for url in urls])
     elif files:
         urls = await asyncio.gather(
-            *[asyncio.ensure_future(upload_image_url_file(file=file, size=size, save_root_path=save_root_path, add_random_name=True)) for file in files])
+            *[asyncio.ensure_future(upload_image_url_file(file=file, size=size, thumbnail=thumbnail, save_root_path=save_root_path, add_random_name=True)) for file in files])
     return urls
