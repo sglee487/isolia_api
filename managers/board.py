@@ -28,6 +28,10 @@ s3 = S3Service()
 class BoardManager:
 
     @staticmethod
+    async def get_post(post_id: int) -> Record:
+        return await BoardDBManager.get_post(post_id)
+
+    @staticmethod
     async def get_board_list(board_type: BoardType | None):
         return await BoardDBManager.get_board(board_type)
 

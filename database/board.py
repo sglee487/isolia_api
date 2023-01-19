@@ -18,6 +18,11 @@ from schemas.base import EmailField
 class BoardDBManager:
 
     @staticmethod
+    async def get_post(post_id:int):
+        query = select([board]).where(board.c.id == post_id)
+        return await database.fetch_one(query)
+
+    @staticmethod
     async def get_board(board_type: BoardType = None):
         query = select([board, user]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
         query = query.where(board.c.is_active)
