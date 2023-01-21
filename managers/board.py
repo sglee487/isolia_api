@@ -32,8 +32,8 @@ class BoardManager:
         return await BoardDBManager.get_post(post_id)
 
     @staticmethod
-    async def get_board_list(board_type: BoardType | None):
-        return await BoardDBManager.get_board(board_type)
+    async def get_board_list(board_type: BoardType | None, page: int) -> list[Record]:
+        return await BoardDBManager.get_board(board_type, page)
 
     @staticmethod
     async def upload_images(files, user_id):

@@ -35,6 +35,7 @@ async def post_board(request: Request, board_model: BoardCreateIn):
     user: Record = request.state.user
     return await BoardManager.post_board(board_model, user.id)
 
+
 @router.get(
     "/post/{post_id}",
     dependencies=[Depends(oauth2_app)],
@@ -49,13 +50,14 @@ async def get_post(post_id: int):
     dependencies=[Depends(oauth2_app)],
     status_code=HTTP_200_OK,
 )
-async def get_board_list():
-    return await BoardManager.get_board_list(None)
+async def get_board_list(page: int = 1):
+    return await BoardManager.get_board_list(None, page)
+
 
 @router.get(
     "/{board_type}/",
     dependencies=[Depends(oauth2_app)],
     status_code=HTTP_200_OK,
 )
-async def get_board_list(board_type: BoardType):
-    return await BoardManager.get_board_list(board_type)
+async def get_board_list(board_type: BoardType, page: int = 1):
+    return await BoardManager.get_board_list(board_type, page)

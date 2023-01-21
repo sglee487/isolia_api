@@ -23,12 +23,16 @@ class BoardDBManager:
         return await database.fetch_one(query)
 
     @staticmethod
-    async def get_board(board_type: BoardType = None):
+    async def get_board(board_type: BoardType = None, page: int = 1, page_size: int = 10):
         query = select([board, user]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
         query = query.where(board.c.is_active)
         if board_type:
             query = query.where(board.c.board_type == board_type)
         query = query.order_by(board.c.created_at.desc())
+
+        start = (page - 1) * page_size
+        end = page * page_size
+        query = query.limit(end).offset(start)
         result = await database.fetch_all(query)
         return result
 
