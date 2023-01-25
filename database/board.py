@@ -61,3 +61,53 @@ class BoardDBManager:
             return id_
         except Exception as e:
             return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # @staticmethod
+    # async def update_board(board_id: int, title: str, content: str | None, preview_text: str | None, preview_image: str | None, user_id: int):
+    #     try:
+    #         update_data = {
+    #             "title": title,
+    #             "content": content,
+    #             "preview_text": preview_text,
+    #             "preview_image": preview_image,
+    #             "user_id": user_id,
+    #             "updated_at": datetime.now(),
+    #         }
+    #         id_ = await database.execute(
+    #             board.update()
+    #             .where(board.c.id == board_id)
+    #             .values(update_data)
+    #         )
+    #         return id_
+    #     except Exception as e:
+    #         return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+    #
+    # @staticmethod
+    # async def delete_board(board_id: int, user_id: int):
+    #     try:
+    #         id_ = await database.execute(
+    #             board.update()
+    #             .where(board.c.id == board_id)
+    #             .values(is_active=False)
+    #         )
+    #         return id_
+    #     except Exception as e:
+    #         return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
+    async def post_comment(board_id: int, content: str, user_id: int):
+        try:
+            update_data = {
+                "board_id": board_id,
+                "content": content,
+                "user_id": user_id,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now(),
+            }
+            id_ = await database.execute(
+                comment.insert()
+                .values(update_data)
+            )
+            return await database.fetch_one(select([comment]).where(comment.c.id == id_))
+        except Exception as e:
+            return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)

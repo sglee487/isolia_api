@@ -1,19 +1,12 @@
-import uuid
-
-from datetime import datetime
-from asyncpg import UniqueViolationError
-from fastapi import HTTPException
 from passlib.context import CryptContext
 from google.auth.transport import requests as google_requests
-from google.oauth2.id_token import verify_oauth2_token
-from decouple import config
 from databases.interfaces import Record
 from bs4 import BeautifulSoup
 
 from database.board import BoardDBManager
-from managers.auth import AuthManager
-from database.models.enums import LoginType, RoleType, BoardType
+from database.models.enums import BoardType
 from schemas.request.board import BoardCreateIn
+from schemas.request.comment import CommentCreateIn
 from services.s3 import S3Service
 from utils.board import generate_image_urls
 
@@ -52,3 +45,8 @@ class BoardManager:
 
         return await BoardDBManager.post_board(post.board_type, post.title, post.content, preview_text,
                                                preview_images[0], user_id)
+
+    @staticmethod
+    async def post_comment(comment_model: CommentCreateIn, user_id: int):
+
+        return await BoardDBManager.post_comment(comment_model.board_id, comment_model.content, user_id)
