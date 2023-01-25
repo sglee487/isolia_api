@@ -37,7 +37,7 @@ async def post_board(request: Request, board_model: BoardCreateIn):
 
 
 @router.get(
-    "/post/{post_id}",
+    "/post/{post_id}/",
     dependencies=[Depends(oauth2_app)],
     status_code=HTTP_200_OK,
 )

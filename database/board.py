@@ -7,10 +7,9 @@ from fastapi.responses import JSONResponse
 from decouple import config
 from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
-from pytz import timezone
 
 from database.db import database
-from database.models import user, board
+from database.models import user, board, comment
 from database.models.enums import BoardType
 from schemas.base import EmailField
 
@@ -19,8 +18,14 @@ class BoardDBManager:
 
     @staticmethod
     async def get_post(post_id:int):
-        query = select([board]).where(board.c.id == post_id)
-        return await database.fetch_one(query)
+        query = select([board, user]).where(board.c.id == post_id).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
+        board_data = await database.fetch_one(query)
+        comment_query = select([comment, user]).where(comment.c.board_id == post_id).select_from(comment.outerjoin(user, comment.c.user_id == user.c.id))
+        comment_data = await database.fetch_all(comment_query)
+        return {
+            **board_data,
+            "comments": comment_data
+        }
 
     @staticmethod
     async def get_board(board_type: BoardType = None, page: int = 1, page_size: int = 10):

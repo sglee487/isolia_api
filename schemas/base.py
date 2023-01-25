@@ -68,3 +68,8 @@ class BoardBase(BaseModel):
 class ProfilePictureBase(BaseModel):
     picture_32: str
     picture_96: str
+
+
+class CommentBase(BaseModel):
+    content: str
+    board_id: int
