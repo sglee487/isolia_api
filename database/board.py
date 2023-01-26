@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from decouple import config
-from sqlalchemy import select
+from sqlalchemy import select, func
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from database.db import database
@@ -29,7 +29,7 @@ class BoardDBManager:
 
     @staticmethod
     async def get_board(board_type: BoardType = None, page: int = 1, page_size: int = 10):
-        query = select([board, user]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
+        query = select([board, user.c.display_name, user.c.picture_32]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
         query = query.where(board.c.is_active)
         if board_type:
             query = query.where(board.c.board_type == board_type)
@@ -39,6 +39,15 @@ class BoardDBManager:
         end = page * page_size
         query = query.limit(end).offset(start)
         result = await database.fetch_all(query)
+
+        c_query = select(comment.c.board_id, func.count(comment.c.id).label("comment_count")).group_by(comment.c.board_id)
+        c_result = await database.fetch_all(c_query)
+        print(c_result)
+        # {
+        #     "board_id": 26,
+        #     "comment_count": 9
+        # }
+
         return result
 
     @staticmethod
