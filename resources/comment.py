@@ -20,6 +20,7 @@ router = APIRouter(
 @router.post(
     "/",
     dependencies=[Depends(oauth2_scheme)],
+    status_code=HTTP_201_CREATED,
 )
 async def post_comment(request: Request, comment_model: CommentCreateIn):
     user: Record = request.state.user
