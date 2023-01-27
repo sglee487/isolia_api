@@ -18,6 +18,11 @@ class BoardDBManager:
 
     @staticmethod
     async def get_post(post_id: int):
+        # update hits in board
+        query = board.update().where(board.c.id == post_id).values(hits=board.c.hits + 1)
+        await database.execute(query)
+
+        # get post with user info, comment data
         query = select([board, user]).where(board.c.id == post_id).select_from(
             board.outerjoin(user, board.c.user_id == user.c.id))
         board_data = await database.fetch_one(query)
