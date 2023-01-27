@@ -17,10 +17,12 @@ from schemas.base import EmailField
 class BoardDBManager:
 
     @staticmethod
-    async def get_post(post_id:int):
-        query = select([board, user]).where(board.c.id == post_id).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
+    async def get_post(post_id: int):
+        query = select([board, user]).where(board.c.id == post_id).select_from(
+            board.outerjoin(user, board.c.user_id == user.c.id))
         board_data = await database.fetch_one(query)
-        comment_query = select([comment, user]).where(comment.c.board_id == post_id).select_from(comment.outerjoin(user, comment.c.user_id == user.c.id))
+        comment_query = select([comment, user]).where(comment.c.board_id == post_id).select_from(
+            comment.outerjoin(user, comment.c.user_id == user.c.id))
         comment_data = await database.fetch_all(comment_query)
         return {
             **board_data,
@@ -29,29 +31,26 @@ class BoardDBManager:
 
     @staticmethod
     async def get_board(board_type: BoardType = None, page: int = 1, page_size: int = 10):
-        query = select([board, user.c.display_name, user.c.picture_32]).select_from(board.outerjoin(user, board.c.user_id == user.c.id))
+        c_query = select([comment.c.board_id, func.count(comment.c.id).label("comment_count")]).group_by(
+            comment.c.board_id)
+        query = select([board, user.c.display_name, user.c.picture_32,
+                        func.coalesce(c_query.c.comment_count, 0).label("comment_count")]).select_from(
+            board.outerjoin(user, board.c.user_id == user.c.id).join(c_query, board.c.id == c_query.c.board_id,
+                                                                     isouter=True))
         query = query.where(board.c.is_active)
         if board_type:
             query = query.where(board.c.board_type == board_type)
         query = query.order_by(board.c.created_at.desc())
-
         start = (page - 1) * page_size
         end = page * page_size
         query = query.limit(end).offset(start)
         result = await database.fetch_all(query)
 
-        c_query = select(comment.c.board_id, func.count(comment.c.id).label("comment_count")).group_by(comment.c.board_id)
-        c_result = await database.fetch_all(c_query)
-        print(c_result)
-        # {
-        #     "board_id": 26,
-        #     "comment_count": 9
-        # }
-
         return result
 
     @staticmethod
-    async def post_board(board_type: BoardType, title: str, content: str | None, preview_text: str | None, preview_image: str | None, user_id: int):
+    async def post_board(board_type: BoardType, title: str, content: str | None, preview_text: str | None,
+                         preview_image: str | None, user_id: int):
         try:
             update_data = {
                 "board_type": board_type.value,
