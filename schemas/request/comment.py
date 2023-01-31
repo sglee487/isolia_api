@@ -2,4 +2,4 @@ from schemas.base import CommentBase
 
 
 class CommentCreateIn(CommentBase):
-    pass
+    board_id: int

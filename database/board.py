@@ -23,10 +23,17 @@ class BoardDBManager:
         await database.execute(query)
 
         # get post with user info, comment data
-        query = select([board, user]).where(board.c.id == post_id).select_from(
+        query = select([board.c.id, board.c.board_type, board.c.title, board.c.created_at.label("created_at"),
+                        board.c.updated_at.label("updated_at"), board.c.hits, board.c.content, board.c.like,
+                        board.c.dislike, board.c.is_active.label("is_active"), user.c.id.label("user_id"), user.c.picture_96,
+                        user.c.display_name, user.c.is_active.label("user_is_active")]).where(board.c.id == post_id).select_from(
             board.outerjoin(user, board.c.user_id == user.c.id))
         board_data = await database.fetch_one(query)
-        comment_query = select([comment, user]).where(comment.c.board_id == post_id).select_from(
+        comment_query = select(
+            [comment.c.id, comment.c.content, comment.c.created_at, comment.c.updated_at,
+             comment.c.like, comment.c.is_active, user.c.id.label("user_id"),
+             user.c.picture_96, user.c.display_name, user.c.is_active.label("user_is_active")]).where(
+            comment.c.board_id == post_id).select_from(
             comment.outerjoin(user, comment.c.user_id == user.c.id))
         comment_data = await database.fetch_all(comment_query)
         return {
