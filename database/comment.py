@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
@@ -28,9 +26,7 @@ class CommentDBManager:
             update_data = {
                 "content": content,
                 "user_id": user_id,
-                "post_id": post_id,
-                "created_at": datetime.now(),
-                "updated_at": datetime.now(),
+                "post_id": post_id
             }
             id_ = await database.execute(
                 comment.insert()

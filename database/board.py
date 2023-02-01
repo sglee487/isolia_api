@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
@@ -71,8 +69,6 @@ class BoardDBManager:
                 "preview_text": preview_text,
                 "preview_image": preview_image,
                 "user_id": user_id,
-                "created_at": datetime.now(),
-                "updated_at": datetime.now(),
             }
             id_ = await database.execute(
                 board.insert()
@@ -121,8 +117,6 @@ class BoardDBManager:
                 "board_id": board_id,
                 "content": content,
                 "user_id": user_id,
-                "created_at": datetime.now(),
-                "updated_at": datetime.now(),
             }
             id_ = await database.execute(
                 comment.insert()
