@@ -47,6 +47,6 @@ class BoardManager:
                                                preview_images[0], user_id)
 
     @staticmethod
-    async def post_comment(comment_model: CommentCreateIn, user_id: int):
+    async def post_comment(board_id: int, comment_model: CommentCreateIn, user_id: int):
 
-        return await BoardDBManager.post_comment(comment_model.board_id, comment_model.content, user_id)
+        return await BoardDBManager.post_comment(board_id, comment_model.content, user_id)

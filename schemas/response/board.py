@@ -24,6 +24,7 @@ class BoardListOutResponse(BoardBase):
 
 
 class PostResponse(BoardBase):
+    id: int
     created_at: datetime
     updated_at: datetime
     comments: list[CommentListOutResponse]

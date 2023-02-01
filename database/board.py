@@ -128,6 +128,6 @@ class BoardDBManager:
                 comment.insert()
                 .values(update_data)
             )
-            return await database.fetch_one(select([comment]).where(comment.c.id == id_))
+            return id_
         except Exception as e:
             return JSONResponse(content=e, status_code=HTTP_500_INTERNAL_SERVER_ERROR)

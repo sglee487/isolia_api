@@ -18,10 +18,10 @@ router = APIRouter(
 
 
 @router.post(
-    "/",
+    "/{board_id}/",
     dependencies=[Depends(oauth2_scheme)],
     status_code=HTTP_201_CREATED,
 )
-async def post_comment(request: Request, comment_model: CommentCreateIn):
+async def post_comment(request: Request, board_id: int, comment_model: CommentCreateIn) -> int:
     user: Record = request.state.user
-    return await BoardManager.post_comment(comment_model, user.id)
+    return await BoardManager.post_comment(board_id, comment_model, user.id)
