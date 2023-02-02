@@ -13,8 +13,10 @@ comment = sqlalchemy.Table(
     sqlalchemy.Column(
         "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
     ),
-    sqlalchemy.Column("created_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.sql.func.now()),
-    sqlalchemy.Column("updated_at", sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.sql.func.now()),
+    sqlalchemy.Column("created_at", sqlalchemy.DateTime, nullable=False,
+                      server_default=sqlalchemy.sql.expression.text("NOW() AT TIME ZONE 'UTC+9'")),
+    sqlalchemy.Column("updated_at", sqlalchemy.DateTime, nullable=False,
+                      server_default=sqlalchemy.sql.expression.text("NOW() AT TIME ZONE 'UTC+9'")),
     sqlalchemy.Column("deleted_at", sqlalchemy.DateTime),
 
 )

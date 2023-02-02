@@ -62,7 +62,6 @@ class UserBase(BaseModel):
 class BoardBase(BaseModel):
     board_type: BoardType
     title: str
-    content: str
 
 
 class ProfilePictureBase(BaseModel):
@@ -72,4 +71,3 @@ class ProfilePictureBase(BaseModel):
 
 class CommentBase(BaseModel):
     content: str
-    board_id: int

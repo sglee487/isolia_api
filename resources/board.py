@@ -7,6 +7,7 @@ from databases.interfaces import Record
 from managers.auth import oauth2_app, oauth2_scheme
 from managers.board import BoardManager
 from schemas.request.board import BoardCreateIn
+from schemas.response.board import BoardListOutResponse, PostResponse
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from database.models.enums import BoardType
@@ -31,7 +32,7 @@ async def upload_image_files(request: Request, files: list[UploadFile] = File(..
     "/",
     dependencies=[Depends(oauth2_scheme)],
 )
-async def post_board(request: Request, board_model: BoardCreateIn):
+async def post_board(request: Request, board_model: BoardCreateIn) -> int:
     user: Record = request.state.user
     return await BoardManager.post_board(board_model, user.id)
 
@@ -39,6 +40,7 @@ async def post_board(request: Request, board_model: BoardCreateIn):
 @router.get(
     "/post/{post_id}/",
     dependencies=[Depends(oauth2_app)],
+    response_model=PostResponse,
     status_code=HTTP_200_OK,
 )
 async def get_post(post_id: int):
@@ -48,6 +50,7 @@ async def get_post(post_id: int):
 @router.get(
     "/all/",
     dependencies=[Depends(oauth2_app)],
+    response_model=list[BoardListOutResponse],
     status_code=HTTP_200_OK,
 )
 async def get_board_list(page: int = 1):
@@ -57,6 +60,7 @@ async def get_board_list(page: int = 1):
 @router.get(
     "/{board_type}/",
     dependencies=[Depends(oauth2_app)],
+    response_model=list[BoardListOutResponse],
     status_code=HTTP_200_OK,
 )
 async def get_board_list(board_type: BoardType, page: int = 1):
