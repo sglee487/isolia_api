@@ -1,6 +1,12 @@
+from datetime import datetime
+from pytz import timezone
+
 import sqlalchemy
 
 from database.db import metadata
+
+offset = timezone("Asia/Seoul").utcoffset(datetime.now())
+offset_str = f"{offset.seconds//3600:+03d}:00"
 
 comment = sqlalchemy.Table(
     "comment",
@@ -13,10 +19,10 @@ comment = sqlalchemy.Table(
     sqlalchemy.Column(
         "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
     ),
-    sqlalchemy.Column("created_at", sqlalchemy.DateTime, nullable=False,
-                      server_default=sqlalchemy.sql.expression.text("NOW() AT TIME ZONE 'UTC+9'")),
-    sqlalchemy.Column("updated_at", sqlalchemy.DateTime, nullable=False,
-                      server_default=sqlalchemy.sql.expression.text("NOW() AT TIME ZONE 'UTC+9'")),
+    sqlalchemy.Column("created_at", sqlalchemy.DateTime(timezone=True), nullable=False,
+                      server_default=sqlalchemy.sql.text(f"'UTC{offset_str}'")),
+    sqlalchemy.Column("updated_at", sqlalchemy.DateTime(timezone=True), nullable=False,
+                      server_default=sqlalchemy.sql.text(f"'UTC{offset_str}'")),
     sqlalchemy.Column("deleted_at", sqlalchemy.DateTime),
 
 )
