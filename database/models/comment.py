@@ -20,9 +20,9 @@ comment = sqlalchemy.Table(
         "is_active", sqlalchemy.Boolean, nullable=False, server_default="1"
     ),
     sqlalchemy.Column("created_at", sqlalchemy.DateTime(timezone=True), nullable=False,
-                      server_default=sqlalchemy.sql.text(f"'UTC{offset_str}'")),
+                      server_default=sqlalchemy.sql.text(f'now() at time zone \'UTC{offset_str}\'')),
     sqlalchemy.Column("updated_at", sqlalchemy.DateTime(timezone=True), nullable=False,
-                      server_default=sqlalchemy.sql.text(f"'UTC{offset_str}'")),
+                      server_default=sqlalchemy.sql.text(f'now() at time zone \'UTC{offset_str}\'')),
     sqlalchemy.Column("deleted_at", sqlalchemy.DateTime),
 
 )

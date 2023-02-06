@@ -44,7 +44,7 @@ class BoardManager:
                                                    save_root_path=f"board/preview/{user_id}") if soup.img else None
 
         return await BoardDBManager.post_board(post.board_type, post.title, post.content, preview_text,
-                                               preview_images[0], user_id)
+                                               preview_images[0] if preview_images else None, user_id)
 
     @staticmethod
     async def post_comment(board_id: int, comment_model: CommentCreateIn, user_id: int):

@@ -1,3 +1,5 @@
+from pytz import timezone
+
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
