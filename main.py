@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+import socketio
 
 # from db import database
 # from database.db import create_tables
 from database.db import database
 from resources.routes import api_router
+from sockets.minesweeper import sio
 
 origins = [
     "http://localhost",
@@ -15,7 +17,6 @@ origins = [
     "http://localhost:5173",
     "https://isolia.shop"
 ]
-
 
 app = FastAPI()
 app.include_router(api_router)
@@ -41,3 +42,5 @@ async def startup():
 @app.on_event("shutdown")
 async def startup():
     await database.disconnect()
+
+app = socketio.ASGIApp(sio, app)
