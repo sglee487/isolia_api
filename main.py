@@ -1,12 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from starlette.middleware.cors import CORSMiddleware
-import socketio
+# import socketio
+from fastapi_socketio import SocketManager
 
 # from db import database
 # from database.db import create_tables
 from database.db import database
 from resources.routes import api_router
-from sockets.minesweeper import sio
+# from sockets.minesweeper import sio
+from sockets.minesweeper import router as ws_router
 
 origins = [
     "http://localhost",
@@ -20,6 +22,7 @@ origins = [
 
 app = FastAPI()
 app.include_router(api_router)
+app.include_router(ws_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -43,4 +46,6 @@ async def startup():
 async def startup():
     await database.disconnect()
 
-app = socketio.ASGIApp(sio, app)
+# app = socketio.ASGIApp(sio, app)
+
+# socket_manager = SocketManager(app=app)
