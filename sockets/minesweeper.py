@@ -129,28 +129,28 @@ class ConnectionManager:
 connection_manager = ConnectionManager()
 
 
-@router.websocket("/connect")
+@router.websocket("/ws/connect")
 async def connect(websocket: WebSocket):
     await websocket.accept()
     await connection_manager.connect(websocket)
 
-@router.websocket("/mine_players")
+@router.websocket("/ws/mine_players")
 async def mine_players(websocket: WebSocket):
     await websocket.accept()
     sid = await websocket.receive_text()
     await connection_manager.mine_players(websocket, sid)
 
-@router.websocket("/mine_start/{client_sid}")
+@router.websocket("/ws/mine_start/{client_sid}")
 async def mine_start(websocket: WebSocket, client_sid: str):
     await websocket.accept()
     await connection_manager.mine_start(websocket, client_sid)
 
-@router.websocket("/mine_action/{client_sid}")
+@router.websocket("/ws/mine_action/{client_sid}")
 async def mine_action(websocket: WebSocket, client_sid: str):
     await websocket.accept()
     await connection_manager.mine_action(websocket, client_sid)
 
-@router.websocket("/mine_restart")
+@router.websocket("/ws/mine_restart")
 async def mine_restart(websocket: WebSocket):
     await websocket.accept()
     await connection_manager.mine_restart(websocket)
