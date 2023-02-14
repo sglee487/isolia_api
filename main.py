@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket
 from starlette.middleware.cors import CORSMiddleware
 # import socketio
-from fastapi_socketio import SocketManager
+# from fastapi_socketio import SocketManager
 
 # from db import database
 # from database.db import create_tables

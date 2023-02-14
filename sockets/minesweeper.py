@@ -74,11 +74,20 @@ class ConnectionManager:
         print(self.profiles)
         try:
             while True:
-                data = await websocket.receive_text()
+                data = await websocket.receive_json()
+                print(sid)
+                print(self.profiles)
                 print(data)
+                response_data = {
+                    **data,
+                    "name": self.profiles[sid]["name"],
+                    "color": self.profiles[sid]["color"],
+                }
+                history.append(response_data)
+                print(history)
                 for profile in self.profiles.values():
                     if 'mine_action_ws' in profile:
-                        await profile['mine_action_ws'].send_json(data)
+                        await profile['mine_action_ws'].send_json({**response_data, "history": history})
 
         except WebSocketDisconnect:
             return
