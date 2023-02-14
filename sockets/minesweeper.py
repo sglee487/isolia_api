@@ -13,9 +13,6 @@ from utils.mine import generate_nickname, generate_color
 size = 12
 bombs = 24
 bombs_coords = []
-
-players = dict()
-sids = []
 history = []
 
 
@@ -50,17 +47,44 @@ class ConnectionManager:
             await websocket.send_json(self.profiles[sid])
             await websocket.receive_text()
         except WebSocketDisconnect:
-            self.disconnect(websocket)
             if sid in self.profiles:
                 del self.profiles[sid]
-            return
+            await self.disconnect(websocket)
 
-    def disconnect(self, websocket: WebSocket):
+    async def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
+        players = []
+        for profile in self.profiles.values():
+            if 'mine_players_ws' in profile:
+                players.append({
+                    "name": profile["name"],
+                    "color": profile["color"]
+                })
+        for profile in self.profiles.values():
+            if 'mine_players_ws' in profile:
+                await profile['mine_players_ws'].send_json(players)
+
+    async def mine_players(self, websocket: WebSocket, sid: str):
+        self.profiles[sid]['mine_players_ws'] = websocket
+        try:
+            while True:
+                players = []
+                for profile in self.profiles.values():
+                    if 'mine_players_ws' in profile:
+                        players.append({
+                            "name": profile["name"],
+                            "color": profile["color"]
+                        })
+                for profile in self.profiles.values():
+                    if 'mine_players_ws' in profile:
+                        await profile['mine_players_ws'].send_json(players)
+                await websocket.receive_text()
+
+        except WebSocketDisconnect:
+            return
 
     async def mine_start(self, websocket: WebSocket, sid: str):
         self.profiles[sid]['mine_start_ws'] = websocket
-        print(self.profiles)
         try:
             while True:
                 await websocket.send_json({"size": size, "bombs": bombs_coords, "history": history})
@@ -71,23 +95,30 @@ class ConnectionManager:
 
     async def mine_action(self, websocket: WebSocket, sid: str):
         self.profiles[sid]['mine_action_ws'] = websocket
-        print(self.profiles)
         try:
             while True:
                 data = await websocket.receive_json()
-                print(sid)
-                print(self.profiles)
-                print(data)
                 response_data = {
                     **data,
                     "name": self.profiles[sid]["name"],
                     "color": self.profiles[sid]["color"],
                 }
                 history.append(response_data)
-                print(history)
                 for profile in self.profiles.values():
                     if 'mine_action_ws' in profile:
                         await profile['mine_action_ws'].send_json({**response_data, "history": history})
+
+        except WebSocketDisconnect:
+            return
+
+    async def mine_restart(self, websocket: WebSocket):
+        try:
+            while True:
+                await websocket.receive_text()
+                game_restart()
+                for profile in self.profiles.values():
+                    if 'mine_start_ws' in profile:
+                        await profile['mine_start_ws'].send_json({"size": size, "bombs": bombs_coords, "history": history})
 
         except WebSocketDisconnect:
             return
@@ -97,37 +128,17 @@ class ConnectionManager:
 
 connection_manager = ConnectionManager()
 
-# @router.websocket("connect")
-# async def connect(sid, environ):
-#     sids.append(sid)
-#     players[sid] = {
-#         "name": generate_nickname(),
-#         "color": generate_color(),
-#     }
-#
-#     await sm.emit("give_player_info", players[sid], room=sid)
-#     await sm.emit("mine_players", list(players.values()))
-#     await sm.emit("mine_history", history)
-
 
 @router.websocket("/connect")
 async def connect(websocket: WebSocket):
     await websocket.accept()
     await connection_manager.connect(websocket)
 
-# @router.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     data = await websocket.receive_text()
-#     print(websocket)
-#     await websocket.send_text(f"Message text was: {data}")
-
-# @router.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     while True:
-#         data = await websocket.receive_text()
-#         await websocket.send_text(f"Message text was: {data}")
+@router.websocket("/mine_players")
+async def mine_players(websocket: WebSocket):
+    await websocket.accept()
+    sid = await websocket.receive_text()
+    await connection_manager.mine_players(websocket, sid)
 
 @router.websocket("/mine_start/{client_sid}")
 async def mine_start(websocket: WebSocket, client_sid: str):
@@ -139,6 +150,10 @@ async def mine_action(websocket: WebSocket, client_sid: str):
     await websocket.accept()
     await connection_manager.mine_action(websocket, client_sid)
 
+@router.websocket("/mine_restart")
+async def mine_restart(websocket: WebSocket):
+    await websocket.accept()
+    await connection_manager.mine_restart(websocket)
 
 # @router.websocket("leave_mine")
 # async def leave_mine(sid):
