@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket
 from starlette.middleware.cors import CORSMiddleware
+
 # import socketio
 # from fastapi_socketio import SocketManager
 
@@ -7,6 +8,8 @@ from starlette.middleware.cors import CORSMiddleware
 # from database.db import create_tables
 from database.db import database
 from resources.routes import api_router
+import redis
+
 # from sockets.minesweeper import sio
 from sockets.minesweeper import router as ws_router
 
@@ -17,7 +20,7 @@ origins = [
     "http://localhost:8000",
     "http://localhost:4200",
     "http://localhost:5173",
-    "https://isolia.shop"
+    "https://isolia.shop",
 ]
 
 app = FastAPI()
@@ -43,8 +46,11 @@ async def startup():
 
 
 @app.on_event("shutdown")
-async def startup():
+async def shutdown():
     await database.disconnect()
+    r = redis.Redis(host='127.0.0.1', port=6379, db=0, charset="utf-8", decode_responses=True)
+    r.flushdb()
+
 
 # app = socketio.ASGIApp(sio, app)
 
