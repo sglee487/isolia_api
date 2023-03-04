@@ -15,9 +15,16 @@ import redis
 
 from utils.mine import generate_nickname, generate_color
 
+from decouple import config
+
 router = APIRouter()
-redis_url = 'redis://127.0.0.1:6379/0'
-r = redis.Redis(host='127.0.0.1', port=6379, db=0, charset="utf-8", decode_responses=True)
+r = redis.Redis(
+    host=str(config('REDIS_HOST')),
+    port=int(config('REDIS_PORT')),
+    db=int(config('MINE_REDIS_DB')),
+    charset="utf-8",
+    decode_responses=True,
+)
 pubsub = r.pubsub()
 pubsub.subscribe('mine')
 active_connections_key = 'active_connections'
