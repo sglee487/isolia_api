@@ -1,6 +1,10 @@
 .idea
 .vscode
-.venv
+.env_example
+commands.txt
+run_server_local.sh
+run_server.sh
+README.md
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,pycharm,python,linux,visualstudiocode,venv
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,pycharm,python,linux,visualstudiocode,venv
@@ -256,7 +260,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
