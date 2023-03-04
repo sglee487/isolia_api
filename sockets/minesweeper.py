@@ -35,7 +35,7 @@ bomb_key = 'bomb'
 bomb_coords_key = 'bomb_coords'
 
 r.set(size_key, 12)
-r.set(bomb_key, 4)
+r.set(bomb_key, 20)
 
 
 def get_redis_size():
