@@ -34,9 +34,6 @@ size_key = 'size'
 bomb_key = 'bomb'
 bomb_coords_key = 'bomb_coords'
 
-r.set(size_key, 12)
-r.set(bomb_key, 20)
-
 
 def get_redis_size():
     size = int(r.get(size_key) or 0)
@@ -63,6 +60,9 @@ def get_history():
 def game_reset():
     r.delete(history_key)
     bomb_coords = []
+
+    r.set(size_key, 12)
+    r.set(bomb_key, 20)
 
     size = int(r.get(size_key) or 0)
     bombs = int(r.get(bomb_key) or 0)
