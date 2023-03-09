@@ -2,3 +2,11 @@
 # alembic
 alembic revision --autogenerate -m "Initial migration"
 alembic upgrade head
+
+# docker build push
+sudo docker build -t sglee487/isolia_api .
+sudo docker push sglee487/isolia_api
+
+sudo docker stop isolia_api
+sudo docker rm isolia_api
+sudo docker run -d -p 8080:80 --name isolia_api sglee487/isolia_api:latest
